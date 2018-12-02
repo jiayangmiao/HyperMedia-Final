@@ -44,6 +44,7 @@ Frame::Frame( QWidget *parent) :
 
 	audioPlayer = new QMediaPlayer(this, QMediaPlayer::LowLatency);
 	connect(audioPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(updateAudioStatus(QMediaPlayer::MediaStatus)));
+	enableJump();
 	m_iCurrentFrame = 1;
 }
 void Frame::setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps,int iCacheSize, int iInitialLoadedFrameSize )
@@ -343,6 +344,10 @@ void Frame::mouseReleaseEvent(QMouseEvent *event)
 	if (!isPaintRect())
 	{
 		qDebug() << " not enable PaintRect";
+		return;
+	}
+	if (!ifJumpEnbale())
+	{
 		return;
 	}
 

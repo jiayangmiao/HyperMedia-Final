@@ -114,6 +114,7 @@ private:
 	int m_iImageOffset_y;
 	double m_dImageScalor_x;
 	double m_dImageScalor_y;
+	double m_bEnableJump = true;
 
 signals:
 	void linkSelected(std::map<std::string, HyperLinkForFrame *>);
@@ -129,6 +130,18 @@ public:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+	void enableJump()
+	{
+		m_bEnableJump = true;
+	}
+	void disableJump()
+	{
+		m_bEnableJump = false;
+	}
+	bool ifJumpEnbale()
+	{
+		return m_bEnableJump;
+	}
 
 	void enablePaintRect()
 	{
