@@ -68,6 +68,13 @@ void Frame::Init()
 
 void Frame::LoadVideo(int startFrame)
 {
+	if (m_bIsStopped == false)
+	{
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
+	return;
+	}
+
 	m_FrameCacheMap.clear();
 	_clear();
 	disablePaintRect();

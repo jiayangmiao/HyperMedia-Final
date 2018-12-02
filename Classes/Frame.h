@@ -27,6 +27,7 @@
 #include <QMediaPlayer>
 #include <QBuffer>
 #include <QMouseEvent>
+#include <QMessageBox>
 #include "multiThread.h"
 #include "HyperLinkForFrame.h"
 
@@ -60,6 +61,7 @@ private:
 	int m_iInitialLoadedFrameSize;
 
 	bool m_bVideoIsLoaded = false;
+	bool m_bIsStopped = true;
 
 	
 	std::string m_sVideoName;
@@ -247,6 +249,7 @@ public slots:
 		//printf("update CurrentFrame: %d \n", m_iCurrentFrame);
 		checkAndLoadFrame(m_iCurrentFrame);
 		emit currentFrameUpdated(m_iCurrentFrame);
+		m_bIsStopped = false;
 		//emit currentFrameUpdated();
 	}
 
@@ -305,6 +308,7 @@ public slots:
 			loadTimer.start(m_iLoadTimerInterval);
 			audioPlayer->play();
 		}
+		m_bIsStopped = false;
 	}
 
 	void framePause()
@@ -329,6 +333,7 @@ public slots:
 		emit currentFrameUpdated(m_iCurrentFrame);
 		audioPlayer->stop();
 		_clear();
+		m_bIsStopped = true;
 	}
 
 	void calibrationTimer()
