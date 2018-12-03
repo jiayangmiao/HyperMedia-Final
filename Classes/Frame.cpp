@@ -44,6 +44,7 @@ Frame::Frame( QWidget *parent) :
 
 	audioPlayer = new QMediaPlayer(this, QMediaPlayer::LowLatency);
 	connect(audioPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(updateAudioStatus(QMediaPlayer::MediaStatus)));
+	enableJump();
 	m_iCurrentFrame = 1;
 }
 void Frame::setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps,int iCacheSize, int iInitialLoadedFrameSize )
@@ -67,6 +68,13 @@ void Frame::Init()
 
 void Frame::LoadVideo(int startFrame)
 {
+	if (m_bIsStopped == false)
+	{
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
+	return;
+	}
+
 	m_FrameCacheMap.clear();
 	_clear();
 	disablePaintRect();
@@ -343,6 +351,10 @@ void Frame::mouseReleaseEvent(QMouseEvent *event)
 	if (!isPaintRect())
 	{
 		qDebug() << " not enable PaintRect";
+		return;
+	}
+	if (!ifJumpEnbale())
+	{
 		return;
 	}
 

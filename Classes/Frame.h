@@ -27,6 +27,7 @@
 #include <QMediaPlayer>
 #include <QBuffer>
 #include <QMouseEvent>
+#include <QMessageBox>
 #include "multiThread.h"
 #include "HyperLinkForFrame.h"
 
@@ -60,6 +61,7 @@ private:
 	int m_iInitialLoadedFrameSize;
 
 	bool m_bVideoIsLoaded = false;
+	bool m_bIsStopped = true;
 
 	
 	std::string m_sVideoName;
@@ -114,6 +116,7 @@ private:
 	int m_iImageOffset_y;
 	double m_dImageScalor_x;
 	double m_dImageScalor_y;
+	double m_bEnableJump = true;
 
 signals:
 	void linkSelected(std::map<std::string, HyperLinkForFrame *>);
@@ -129,6 +132,18 @@ public:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+	void enableJump()
+	{
+		m_bEnableJump = true;
+	}
+	void disableJump()
+	{
+		m_bEnableJump = false;
+	}
+	bool ifJumpEnbale()
+	{
+		return m_bEnableJump;
+	}
 
 	void enablePaintRect()
 	{
@@ -234,6 +249,7 @@ public slots:
 		//printf("update CurrentFrame: %d \n", m_iCurrentFrame);
 		checkAndLoadFrame(m_iCurrentFrame);
 		emit currentFrameUpdated(m_iCurrentFrame);
+		m_bIsStopped = false;
 		//emit currentFrameUpdated();
 	}
 
@@ -292,6 +308,7 @@ public slots:
 			loadTimer.start(m_iLoadTimerInterval);
 			audioPlayer->play();
 		}
+		m_bIsStopped = false;
 	}
 
 	void framePause()
@@ -316,6 +333,7 @@ public slots:
 		emit currentFrameUpdated(m_iCurrentFrame);
 		audioPlayer->stop();
 		_clear();
+		m_bIsStopped = true;
 	}
 
 	void calibrationTimer()
