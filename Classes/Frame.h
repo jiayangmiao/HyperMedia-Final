@@ -61,7 +61,7 @@ private:
 	int m_iInitialLoadedFrameSize;
 
 	bool m_bVideoIsLoaded = false;
-	bool m_bIsStopped = true;
+	
 
 	
 	std::string m_sVideoName;
@@ -92,7 +92,8 @@ public:
 	std::string m_sRootFolder = "";// "D:\\Downloads\\London\\London\\LondonOne\\LondonOne";
 	int m_iCurrentFrame = 0;
 	//bool * pFramesLoadFlag;// is not used
-	
+	bool m_bIsStopped = true;
+
 	void setFileList(QString path);
 	void LoadAudio();
 	void LoadFrame(int FrameNum);
@@ -171,7 +172,7 @@ private:
 	int * m_pFrameIndexOfCacheBlock;
 	QContiguousCache<int> m_FrameCacheMap;
 	int m_iCacheSize;
-	int m_iStorageThreshold = 15; // 保留一部分使用过的图像
+	int m_iStorageThreshold = 8; // 保留一部分使用过的图像
 	int m_iLoadTimerInterval = 300;
 	bool * m_pFrameStateFlag;
 
@@ -203,6 +204,7 @@ private:
 
 public:
 	void loadInitialFrame(int iInitialNum);
+	void loadInitialFrame(int, int);
 	int forwardLoadFrameSeq();
 	bool isFull();
 	bool isAlmostFull();
@@ -227,6 +229,7 @@ public slots:
 
 	void updateCurrentFrame()
 	{
+		//qDebug() << "updateCurrentFrame";
 		if (m_iCurrentFrame < m_iMaxFrame)
 		{
 			m_iCurrentFrame = m_iCurrentFrame + 1;
@@ -248,6 +251,11 @@ public slots:
 		updateCurrentLink();
 		//printf("update CurrentFrame: %d \n", m_iCurrentFrame);
 		checkAndLoadFrame(m_iCurrentFrame);
+		qint64 audiopos = (m_iCurrentFrame * 1000) / 30;
+		if (abs(audioPlayer->position() - audiopos) >= 1500)
+		{
+			audioPlayer->setPosition(audiopos);
+		}
 		emit currentFrameUpdated(m_iCurrentFrame);
 		m_bIsStopped = false;
 		//emit currentFrameUpdated();
@@ -256,11 +264,21 @@ public slots:
 	void setCurrentFrame(int i)
 	{
 		//qDebug("setCurrentFrame");
+
+		
 		if (m_bVideoIsLoaded == false)
 		{
 			return;
 		}
-		m_iCurrentFrame = i;
+		if (i == m_iCurrentFrame)
+		{
+			return;
+		}
+		else
+		{
+			m_iCurrentFrame = i;
+		}
+		
 
 		qint64 audiopos = (m_iCurrentFrame * 1000) / 30;
 		if (abs(audioPlayer->position() - audiopos) >= 1500)
@@ -280,10 +298,10 @@ public slots:
 
 	void PlayOrPause()
 	{
-		/*if (m_bAudioLoaded == false)
+		if (m_bVideoIsLoaded == false)
 		{
 		return;
-		}*/
+		}
 
 		if ((audioPlayer->state() == QMediaPlayer::StoppedState) || (audioPlayer->state() == QMediaPlayer::PausedState))
 		{

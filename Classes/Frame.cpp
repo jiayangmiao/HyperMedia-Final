@@ -80,20 +80,26 @@ void Frame::LoadVideo(int startFrame)
 	disablePaintRect();
 	freeLinkSystemMemory();
 	LoadMetaData();
-	m_bVideoIsLoaded = true;
+	
 	m_bAudioLoaded = false;
 	enablePaintRect();
-	loadInitialFrame(m_iInitialLoadedFrameSize);
-	LoadAudio();
-	setCurrentLink();
-	qDebug() << "setCurrentLink finished";
 	if (startFrame != -1)
 	{
 		m_iCurrentFrame = startFrame;
+		loadInitialFrame(startFrame,m_iInitialLoadedFrameSize);
 	}
+	else
+	{
+		loadInitialFrame(m_iInitialLoadedFrameSize);
+	}
+	m_bVideoIsLoaded = true;
+	LoadAudio();
+	setCurrentLink();
+	qDebug() << "setCurrentLink finished";
 	qDebug() << "current Frame: " << m_iCurrentFrame;
 	emit currentFrameUpdated(m_iCurrentFrame);
 	qDebug() << "LoadVideo Finished";
+	
 }
 
 Frame::~Frame()
@@ -246,6 +252,7 @@ void Frame::LoadAudio()
 	audioPlayer->setMedia(QUrl::fromLocalFile(audioFileName));
 	audioPlayer->setVolume(0);
 	audioPlayer->play();
+	m_bAudioLoaded = false;
 	qDebug() << "LoadAudio finished";
 }
 
@@ -372,6 +379,13 @@ void Frame::mouseReleaseEvent(QMouseEvent *event)
 			selectedLink[it->first] = it->second;
 			setCursor(Qt::OpenHandCursor);
 			framePause();
+			m_bIsStopped = true;
+			loaderThread.interrupt();
+			while (!loaderThread.isStoped())
+			{
+				//printf("!");
+				loaderThread.exit();
+			}
 			emit requestJump((selectedLink.begin()->second)->targetFilename, (selectedLink.begin()->second)->targetFrame);
 			break;
 		}
@@ -467,14 +481,14 @@ DWORD * Frame::fetchFrameBlock(int iCurrentFrame)
 	//loaderThread.interrupt();
 	//while (!loaderThread.isStoped())
 	//{
-		//qDebug() << "still Running";
-		//loaderThread.exit();
+	//	qDebug() << "still Running";
+	//	//loaderThread.exit();
 	//}
 	int iCurrentFrameId = iCurrentFrame - 1;
 
 	if (m_FrameCacheMap.containsIndex(iCurrentFrameId))//&& (m_pFrameIndexOfCacheBlock[m_FrameCacheMap.at(iCurrentFrameId)] == iCurrentFrame))
 	{
-		if (iCurrentFrameId - m_FrameCacheMap.firstIndex() >= 5)
+		if (iCurrentFrameId - m_FrameCacheMap.firstIndex() >= m_iStorageThreshold)
 		{
 			/*qDebug() << "Map remove: " << m_FrameCacheMap.first();
 			qDebug() << "map index range: " << "first: " << m_FrameCacheMap.firstIndex() << " to " << "last: " << m_FrameCacheMap.lastIndex() << "  |  Content : " << m_FrameCacheMap.first() << " to " << m_FrameCacheMap.last();
@@ -483,11 +497,13 @@ DWORD * Frame::fetchFrameBlock(int iCurrentFrame)
 			_prepop();
 	
 			//loaderThread.start(QThread::HighPriority);
+			//startThread();
 			return m_pFrameCache[m_FrameCacheMap.at(iCurrentFrameId)];
 		}
 		else
 		{
 			//loaderThread.start(QThread::HighPriority);
+			//startThread();
 			return m_pFrameCache[m_FrameCacheMap.at(iCurrentFrameId)];
 		}
 
@@ -540,6 +556,12 @@ int Frame::checkFrameExisted(int iCurrentFrame)
 		}
 		else
 		{
+			loaderThread.interrupt();
+			while (!loaderThread.isStoped())
+			{
+				//printf("!");
+				loaderThread.exit();
+			}
 			_clear();
 			m_FrameCacheMap.clear();
 			return -1;
@@ -590,7 +612,7 @@ int Frame::checkAndLoadFrame(int iCurrentFrame)
 	else if (!m_FrameCacheMap.containsIndex(iCurrentFrameId))
 	{
 		
-		qDebug() << "FrameId: " << iCurrentFrameId << "  doesn't hit!  ";
+		qDebug() << "checkAndLoadFrame: FrameId: " << iCurrentFrameId << "  doesn't hit!  ";
 		while (!loaderThread.isStoped())
 		{
 		//printf("!");
@@ -865,18 +887,32 @@ int Frame::forwardLoadFrameSeq()
 	int iNextFrameNum = (m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize] + 1) % (m_iMaxFrame + 1);
 	
 
-	if (iNextFrameNum == 0)
+	if (iNextFrameNum == 0) //&& (m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize] != -1))
 	{
-		//printf("forwardLoadFrame end \n");
-		iNextFrameNum += 1;
-		return -1;
+		if (m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize] == -1)
+		{
+			if (m_iTail == (m_iHead + 1)%m_iCacheSize)
+			{
+				printf("it is true, ");
+			}
+			printf("forwardLoadFrame race condition \n");
+			qDebug() << "last Frame in Map is: " << m_FrameCacheMap.lastIndex() + 1;
+			iNextFrameNum = (m_FrameCacheMap.lastIndex() + 1) + 1;
+		}
+		else
+		{
+			printf("forwardLoadFrame end \n");
+			iNextFrameNum += 1;
+			return 0;
+		}
 	}
-
 	//printf("current Frame: %d, current head: %d, current tail: %d, last loaded frame: %d, loading Frame: %d | ", m_iCurrentFrame, m_iHead, m_iTail, m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize], iNextFrameNum);
-	
+	//printf("current Frame: %d, current head frame: %d, current tail frame: %d, loading Frame: %d \n ", m_iCurrentFrame, m_pFrameIndexOfCacheBlock[m_iHead], m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize],iNextFrameNum);
+
 	if ((iNextFrameNum - 1) != m_FrameCacheMap.lastIndex() + 1) // ID + 1 = true frame number
 	{
 		qDebug() << "forward function error!\n: " << "iNextFrameNum - 1: " << iNextFrameNum - 1 << " m_FrameCacheMap.lastIndex() + 1" << m_FrameCacheMap.lastIndex() + 1;
+		return -2;
 		//_clear();
 	}
 	m_FrameCacheMap.append(_append(iNextFrameNum));
@@ -901,6 +937,26 @@ void Frame::loadInitialFrame(int iInitialNum)
 		}
 	}
 	printf("\nLOAD Initial FRAME SUCCEED!\n");
+}
+
+void Frame::loadInitialFrame(int startFrame, int iInitialNum)
+{
+	qDebug() << "loadFrames";
+	for (int i = startFrame; i <= startFrame + iInitialNum; i++)
+	{
+		//qDebug() << startFrame;
+		m_FrameCacheMap.insert(i - 1, _append(i));// !!!!! i-1 cause the index in QContiguous starts from 0!!!
+		if (i % 100 == 0)
+		{
+			printf(">");
+		}
+		if (i % 1000 == 0)
+		{
+			printf("\n");
+		}
+	}
+	//qDebug() << "map index range: " << "first: " << m_FrameCacheMap.firstIndex() << " to " << "last: " << m_FrameCacheMap.lastIndex() << "  |  Content : " << m_FrameCacheMap.first() << " to " << m_FrameCacheMap.last();
+	printf("LOAD FRAMES SUCCEED!\n");
 }
 
 //Dynamic Loading
