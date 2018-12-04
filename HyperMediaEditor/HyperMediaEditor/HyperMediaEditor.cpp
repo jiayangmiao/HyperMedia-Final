@@ -19,10 +19,62 @@ HyperMediaEditor::HyperMediaEditor(QWidget *parent)
 	ui.leftSlider->setMinimum(1);
 	ui.leftSlider->setMaximum(m_iFrameNum);
 	ui.leftSlider->setStyle(new MyStyle(ui.leftSlider->style()));
+	ui.originVideoLengthLabel->setText(frame2time(m_iFrameNum, ui.originVideoLengthLabel->text()));
 
 	ui.rightSlider->setMinimum(1);
 	ui.rightSlider->setMaximum(m_iFrameNum);
 	ui.rightSlider->setStyle(new MyStyle(ui.rightSlider->style()));
+	ui.targetVideoLengthLabel->setText(frame2time(m_iFrameNum, ui.targetVideoLengthLabel->text()));
+
+	initialFrames();
+}
+
+void HyperMediaEditor::initialFrames()
+{
+	enableOriginPlayerUI(false);
+	enableTargetPlayerUI(false);
+	initialOriginFrame();
+	initialTargetFrame();
+}
+
+void HyperMediaEditor::initialOriginFrame()
+{
+	// Frame itself
+	connect(ui.leftWidget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enableOriginPlayerUI(bool)));
+	connect(ui.leftWidget, SIGNAL(currentFrameUpdated(int)), ui.leftSlider, SLOT(setValue(int)));
+	connect(ui.leftWidget, SIGNAL(currentFrameUpdated(int)), this, SLOT(updateOriginTime(int)));
+
+	connect(ui.originPathLineEdit, SIGNAL(textChanged(QString)), ui.leftWidget, SLOT(setRootFolder(QString)));
+	connect(ui.originLoadButton, SIGNAL(clicked()), ui.leftWidget, SLOT(LoadVideo()));
+
+	ui.leftWidget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
+	ui.leftWidget->Init();
+
+	// Play Stop and shit
+	connect(ui.originPlayButton, SIGNAL(clicked()), this, SLOT(playTappedOnOrigin()));
+	connect(ui.originStopButton, SIGNAL(clicked()), ui.leftWidget, SLOT(Stop()));
+	connect(ui.leftSlider, SIGNAL(valueChanged(int)), ui.leftWidget, SLOT(setCurrentFrame(int)));
+
+	// jump to target Video 
+	connect(ui.leftWidget , SIGNAL(requestJump(std::string, int)), this, SLOT(jumpToAnotherFrame(std::string, int)));
+}
+
+void HyperMediaEditor::initialTargetFrame()
+{
+	connect(ui.rightWidget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enableTargetPlayerUI(bool)));
+	connect(ui.rightWidget, SIGNAL(currentFrameUpdated(int)), ui.rightSlider, SLOT(setValue(int)));
+	connect(ui.rightWidget, SIGNAL(currentFrameUpdated(int)), this, SLOT(updateTargetTime(int)));
+
+	connect(ui.targetPathLineEdit, SIGNAL(textChanged(QString)), ui.rightWidget, SLOT(setRootFolder(QString)));
+	connect(ui.targetLoadButton, SIGNAL(clicked()), ui.rightWidget, SLOT(LoadVideo()));
+
+	ui.rightWidget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
+	ui.rightWidget->Init();
+
+	// Play Stop and shit
+	connect(ui.targetPlayButton, SIGNAL(clicked()), this, SLOT(playTappedOnTarget()));
+	connect(ui.targetStopButton, SIGNAL(clicked()), ui.rightWidget, SLOT(Stop()));
+	connect(ui.rightSlider, SIGNAL(valueChanged(int)), ui.rightWidget, SLOT(setCurrentFrame(int)));
 
 }
 

@@ -51,6 +51,7 @@ HyperMediaPlayer::HyperMediaPlayer(int iNum, int iWidth, int iHeight,int iFps, Q
 
 void HyperMediaPlayer::initialFrame()
 {
+	connect(ui.widget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enablePlayerUI(bool)));
 	connect(ui.widget, SIGNAL(currentFrameUpdated(int)), ui.horizontalSlider, SLOT(setValue(int)));
 	connect(ui.widget, SIGNAL(currentFrameUpdated(int)), this, SLOT(updateTime(int)));
 
@@ -75,7 +76,6 @@ void HyperMediaPlayer::initialFrame()
 	connect(ui.widget, SIGNAL(linkSelected(std::map<std::string, HyperLinkForFrame *>)), this, SLOT(updateSelectedLink(std::map<std::string, HyperLinkForFrame *>)));
 	connect(this, SIGNAL(linkOutputUpdated(QString)), ui.lineEdit_2, SLOT(setText(QString)));
 
-	connect(ui.widget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enablePlayerUI(bool)));
 	// jump to target Video 
 	connect(ui.widget, SIGNAL(requestJump(std::string, int)), this, SLOT(jumpToAnotherFrame(std::string, int)));
 }
