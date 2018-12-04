@@ -72,6 +72,7 @@ void HyperMediaEditor::initialOriginFrame()
 
 void HyperMediaEditor::initialTargetFrame()
 {
+	ui.rightWidget->disableJump();
 	// Signal for displayed values
 	connect(ui.rightWidget, SIGNAL(videoLoaded(bool)), this, SLOT(updateTargetVideoInfo()));
 	connect(ui.rightWidget, SIGNAL(currentFrameUpdated(int)), ui.rightSlider, SLOT(setValue(int)));
