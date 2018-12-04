@@ -306,9 +306,17 @@ public slots:
 		if !originStartFrameIsChosen warning
 		if !originEndFrameIsChosen warning
 		if !targetFrameIsChosen warning
-
-		ui.leftWidget->
 		*/
+		if (ui.selectArea->text().contains("Off"))
+		{
+			ui.leftWidget->enableEditRect();
+			ui.selectArea->setText("Select Area On");
+		}
+		else
+		{
+			ui.leftWidget->disableEditRect();
+			ui.selectArea->setText("Select Area Off");
+		}
 	}
 
 	void setLinkButtonTapped()

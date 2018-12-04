@@ -370,7 +370,7 @@ void Frame::mouseMoveEvent(QMouseEvent * event)
 			if (m_bRectSelected == true)
 			{
 				//qDebug() << " ssss";
-				qDebug("move and drag rect");
+				//qDebug("move and drag rect");
 				if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.y())) // left top
 				{
 					setCursor(Qt::SizeFDiagCursor);
