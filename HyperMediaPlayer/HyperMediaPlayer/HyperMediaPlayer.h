@@ -91,11 +91,14 @@ public slots:
 			printf("warning: there is no history recorded!\n");
 			return;
 		}
+		ui.widget->framePause();
+		ui.widget->m_bIsStopped = true;
 		History history = frameStack.pop();
 		QString temp = QString::fromStdString(history.sHistoryFilePath);
 		ui.lineEdit->setText(temp);
 		ui.widget->setRootFolder(temp);
 		ui.widget->LoadVideo(history.iHistoryFrame);
+		ui.widget->m_bIsStopped = false;
 	}
 };
 
