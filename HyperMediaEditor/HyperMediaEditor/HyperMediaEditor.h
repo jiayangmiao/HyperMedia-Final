@@ -52,7 +52,7 @@ public:
 	int chosenWidth = 0;
 	int chosenHeight = 0;
 
-	HyperMediaLink *temporaryLink;
+	HyperMediaLink *temporaryLink = NULL;
 
 private:
 	Ui::HyperMediaEditorClass ui;
@@ -66,6 +66,8 @@ private:
 	void initialOriginFrame();
 	void initialTargetFrame();
 
+	void updateRectUI();
+
 	void clearTempLinks();
 	void loadTempLinkFromFrame();
 	void setupComboBoxFromTemp();
@@ -75,6 +77,10 @@ private:
 
 	void addLinkToTemp(HyperMediaLink *newLink);
 	void removeLinkFromTemp(std::string linkName);
+
+	void saveTempLinksIntoFile();
+
+	void enableRectUI(bool);
 
 signals:
 
@@ -152,6 +158,7 @@ public slots:
 		enableOriginPlayerUI(true);
 		enableLinkOperationUI(true);
 		originIsLoaded = true;
+		updateRectUI();
 		chosenOriginFilename = ui.leftWidget->m_sVideoName;
 		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
 		resetTempVariables();
@@ -162,6 +169,7 @@ public slots:
 	{
 		enableTargetPlayerUI(true);
 		targetIsLoaded = true;
+		updateRectUI();
 		chosenTargetFilename = ui.rightWidget->m_sVideoName;
 		std::cout << "Target: " << ui.rightWidget->m_sVideoName << endl;
 	}
@@ -213,6 +221,11 @@ public slots:
 
 			resetTempVariables();
 		}
+	}
+
+	void saveButtonTapped()
+	{
+		saveTempLinksIntoFile();
 	}
 };
 

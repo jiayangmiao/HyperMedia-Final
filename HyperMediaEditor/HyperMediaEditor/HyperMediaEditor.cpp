@@ -31,8 +31,9 @@ HyperMediaEditor::HyperMediaEditor(QWidget *parent)
 
 	connect(ui.setLinkButton, SIGNAL(clicked()), this, SLOT(setLinkButtonTapped()));
 	connect(ui.removeLinkButton, SIGNAL(clicked()), this, SLOT(removeLinkButtonTapped()));
-
+	connect(ui.saveFileButton, SIGNAL(clicked()), this, SLOT(saveButtonTapped()));
 	enableLinkOperationUI(false);
+	enableRectUI(false);
 	initialFrames();
 }
 
@@ -116,6 +117,21 @@ void HyperMediaEditor::loadTempLinkFromFrame()
 	setupComboBoxFromTemp();
 }
 
+void HyperMediaEditor::updateRectUI() {
+	if (originIsLoaded && targetIsLoaded) {
+		enableRectUI(true);
+	}
+	else {
+		enableRectUI(false);
+	}
+}
+
+void HyperMediaEditor::enableRectUI(bool enable)
+{
+	// Add code to enable/disable rect selection UI here
+
+}
+
 void HyperMediaEditor::setupComboBoxFromTemp()
 {
 	std::cout << "Temp link size " << tempLinks.size() << endl;
@@ -182,7 +198,6 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 		}
 	}
 	std::cout << "Temp link now size " << tempLinks.size() << endl;
-
 }
 
 void HyperMediaEditor::resetTempVariables()
@@ -200,6 +215,11 @@ void HyperMediaEditor::resetTempVariables()
 	chosenY = 0;
 	chosenWidth = 0;
 	chosenHeight = 0;
+}
+
+void HyperMediaEditor::saveTempLinksIntoFile()
+{
+	std::cout << "save requested" << endl;
 }
 
 HyperMediaEditor::~HyperMediaEditor()
