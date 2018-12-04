@@ -37,7 +37,7 @@ Frame::Frame( QWidget *parent) :
 	connect(&timer, SIGNAL(timeout()), this, SLOT(updateCurrentFrame()));
 	connect(this, SIGNAL(currentFrameUpdated(int)), this, SLOT(repaint()));
 	connect(&m_caliTimer, SIGNAL(timeout()), this, SLOT(calibrationTimer()));
-	//connect(this, SIGNAL(rootFolderIsSet()), this, SLOT(LoadVideo()));  //signal: "rootFolderIsSet()" used to be emitted by setRootFolder() 
+	//connect(this, SIGNAL(rootFolderIsSet()), this, SLOT(LoadVideo()));  //signal: "rootFolderIsSet()" used to be emitted by setRootFolder()
 
 	//connect(&loadTimer, SIGNAL(timeout()), this, SLOT(startThread()));
 	loaderThread.setFrameObject(this);
@@ -57,30 +57,29 @@ void Frame::setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps,
 	m_iInitialLoadedFrameSize = iInitialLoadedFrameSize;
 	//timer.start(m_iInterval);
 	//m_caliTimer.start(1000);
-	
+
 }
 
 void Frame::Init()
 {
 	initCacheSystem(m_iCacheSize);
-	
+
 }
 
 void Frame::LoadVideo(int startFrame)
 {
 	if (m_bIsStopped == false)
 	{
-	QMessageBox::StandardButton reply;
-	reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
-	return;
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
+		return;
 	}
 
 	m_FrameCacheMap.clear();
 	_clear();
 	disablePaintRect();
 	freeLinkSystemMemory();
-	LoadMetaData();
-	
+	loadMetaData();
 	m_bAudioLoaded = false;
 	enablePaintRect();
 	if (startFrame != -1)
@@ -99,7 +98,7 @@ void Frame::LoadVideo(int startFrame)
 	qDebug() << "current Frame: " << m_iCurrentFrame;
 	emit currentFrameUpdated(m_iCurrentFrame);
 	qDebug() << "LoadVideo Finished";
-	
+	emit canEnablePlayerUI(true);
 }
 
 Frame::~Frame()
@@ -132,7 +131,7 @@ int Frame::initMemory(int iFrameNum, int width, int height)
 	/*pFramesLoadFlag = new bool[iFrameNum];
 
 	memset(pFramesLoadFlag, false, iFrameNum );*/
-	
+
 	pFrame = (DWORD*)malloc(uiFrameSize_pixel * sizeof(DWORD));
 	pRData = (BYTE*)malloc(uiFrameSize_pixel);
 	pGData = (BYTE*)malloc(uiFrameSize_pixel);
@@ -210,7 +209,7 @@ void Frame::LoadFrame( int iFrameNum )
 
 	const std::string root = m_sRootFolder;// "D:\\Downloads\\London\\London\\LondonOne\\LondonOne";
 	const std::string suffix = m_sVideoSuffix;// ".rgb";
-	
+
 	DWORD * pFrame = pFrames[iFrameNum - 1];
 
 	std::string sFileNum = std::to_string(iFrameNum);
@@ -272,7 +271,7 @@ void Frame::paintEvent(QPaintEvent *e)
 	QRect topPortion = QRect(QPoint((this->rect().size().width() - size.width()) / 2, (this->rect().size().height() - size.height()) / 2), size);
 	paint.setRenderHint(QPainter::SmoothPixmapTransform, 1);
 	paint.drawImage(topPortion, image);
-	
+
 
 	if (isPaintRect())
 	{
@@ -615,7 +614,7 @@ DWORD * Frame::fetchFrameBlock(int iCurrentFrame)
 			qDebug() << "blockIndex range: " << "head: " << m_iHead << " to " << "tail: " << m_iTail << " |  Content : " << m_pFrameIndexOfCacheBlock[m_iHead] << " to " << m_pFrameIndexOfCacheBlock[m_iTail - 1];*/
 			m_FrameCacheMap.takeFirst();
 			_prepop();
-	
+
 			//loaderThread.start(QThread::HighPriority);
 			//startThread();
 			return m_pFrameCache[m_FrameCacheMap.at(iCurrentFrameId)];
@@ -633,7 +632,7 @@ DWORD * Frame::fetchFrameBlock(int iCurrentFrame)
 		printf("fetchFrameBlock: fatal error! iCurrentFrameId: %d\n", iCurrentFrameId);
 		return NULL;
 	}
-	
+
 }
 
 //  Dynamic Loading
@@ -666,7 +665,7 @@ int Frame::checkFrameExisted(int iCurrentFrame)
 	{
 		printf("\n \n");
 		qDebug() << "checkFrameId: " << iCurrentFrameId << "  doesn't hit!  ";
-		if (iCurrentFrameId == m_FrameCacheMap.firstIndex() - 1) // ´ÓÇ°Ãæ¼ÓÈëÐÂÔªËØ add new item at the head
+		if (iCurrentFrameId == m_FrameCacheMap.firstIndex() - 1) // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ add new item at the head
 		{
 			return 1;
 		}
@@ -706,7 +705,7 @@ int Frame::checkAndLoadFrame(int iCurrentFrame)
 		loaderThread.exit();
 	}*/
 	int iCurrentFrameId = iCurrentFrame - 1;
-	
+
 	if (m_FrameCacheMap.containsIndex(iCurrentFrameId))
 	{
 		//printf("hit!\n");
@@ -715,7 +714,7 @@ int Frame::checkAndLoadFrame(int iCurrentFrame)
 			//printf("hit! \n");
 		}
 		else
-		{			
+		{
 			printf("\n existedFrameID confliction: conflicted block! iCurrentFrame: %d, FrameIndexOfCacheBlock  %d\n", iCurrentFrame, m_pFrameIndexOfCacheBlock[m_FrameCacheMap.at(iCurrentFrameId)]);
 			//qDebug() << "map index range: " << "first: " << m_FrameCacheMap.firstIndex() << " to " << "last: " << m_FrameCacheMap.lastIndex() << "  |  Content : " << m_FrameCacheMap.first() << " to " << m_FrameCacheMap.last();
 			//qDebug() << "blockIndex range: " << "head: " << m_iHead << " to " << "tail: " << m_iTail << " |  Content : " << m_pFrameIndexOfCacheBlock[m_iHead] << " to " << m_pFrameIndexOfCacheBlock[m_iTail - 1]<<'\n';
@@ -731,14 +730,14 @@ int Frame::checkAndLoadFrame(int iCurrentFrame)
 	}
 	else if (!m_FrameCacheMap.containsIndex(iCurrentFrameId))
 	{
-		
+
 		qDebug() << "checkAndLoadFrame: FrameId: " << iCurrentFrameId << "  doesn't hit!  ";
 		while (!loaderThread.isStoped())
 		{
 		//printf("!");
 		loaderThread.exit();
 		}
-		if (iCurrentFrameId == m_FrameCacheMap.firstIndex() - 1) // ´ÓÇ°Ãæ¼ÓÈëÐÂÔªËØ add new item at the head
+		if (iCurrentFrameId == m_FrameCacheMap.firstIndex() - 1) // ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ add new item at the head
 		{
 			//printf("insert next front!!!\n");
 			if (_isFull())
@@ -841,7 +840,7 @@ int Frame::_prepop()
 	{
 		m_bIsAlmostFull = false;
 	}
-	
+
 
 	return 0;
 
@@ -858,7 +857,7 @@ int Frame::_backpop()
 	_resetFrameBlock(m_iTail);
 
 	m_bIsFull = false;
-	
+
 	if (((m_iTail + 2) % m_iCacheSize != m_iHead) && (m_bIsFull == false))
 	{
 		m_bIsAlmostFull = false;
@@ -1005,7 +1004,7 @@ int Frame::_loadFrame(int iCurrentFrameNum, int iTargetBlock)
 int Frame::forwardLoadFrameSeq()
 {
 	int iNextFrameNum = (m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize] + 1) % (m_iMaxFrame + 1);
-	
+
 
 	if (iNextFrameNum == 0) //&& (m_pFrameIndexOfCacheBlock[(m_iTail - 1 + m_iCacheSize) % m_iCacheSize] != -1))
 	{
@@ -1157,7 +1156,7 @@ void Frame::updateCurrentLink()
 }
 
 
-void Frame::LoadMetaData()
+void Frame::loadMetaData()
 {
 	try {
 		std::string sFullFilePath = m_sRootFolder + "\\" + m_sVideoName + m_sMetaDataSuffix;
@@ -1165,17 +1164,6 @@ void Frame::LoadMetaData()
 		rapidxml::xml_document<> doc;
 		doc.parse<0>(metadataFile.data());
 
-		// To printout whole xml
-		//rapidxml::print(std::cout, doc, 0);
-
-		// filename. maybe we dont need it ?
-		std::string filename = doc.first_node("filename")->value();
-		std::cout << "filename is " << filename << "\n";
-
-		// TODO: find out where to save the maps
-
-		// Going through all links three times
-		//std::list<HyperMediaLink *> links;
 		rapidxml::xml_node<> *linkNode = doc.first_node("links");
 		for (rapidxml::xml_node<> *thisNode = linkNode->first_node("link"); thisNode; thisNode = thisNode->next_sibling())
 		{
@@ -1183,104 +1171,77 @@ void Frame::LoadMetaData()
 			links.push_back(thisLink);
 		}
 
-		// Second pass
-		std::cout << "Starting second pass..." << "\n";
-		
-
-		std::list<HyperMediaLink *>::iterator it;
-		for (it = links.begin(); it != links.end(); ++it) {
-			(*it)->beautifullyPrint();
-			for (int i = (*it)->startFrame; i < (*it)->endFrame; i++) {
-
-				std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
-				if (itmap != fullMap.end())
-				{ // Found it
-				  //std::list<HyperMediaLink *> thisList = itmap->second;
-				  //thisList.push_back(*it);
-					fullMap.at(i).push_back(*it);
-				}
-				else {
-					std::list<HyperMediaLink *> thisList;
-					thisList.push_back(*it);
-					fullMap.insert(std::pair<int, std::list<HyperMediaLink *>>(i, thisList));
-				}
-			}
-		}
-
-		// Test output / Example for accessing the map
-		/*for (int i = 0; i < 9000; i++) {
-			std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
-			if (itmap != fullMap.end()) {
-				std::cout << "Frame " << i << " has " << itmap->second.size() << " links\n";
-				std::list<HyperMediaLink *>::iterator it2;
-				for (it2 = itmap->second.begin(); it2 != itmap->second.end(); ++it2) {
-					std::cout << (*it2)->linkName << " | ";
-				}
-				std::cout << "\n";
-			}
-		}*/
-		std::cout << "Second pass ending..." << "\n";
-
-		// Third pass
-		std::cout << "Starting third pass..." << "\n";
-		
-
-		for (it = links.begin(); it != links.end(); ++it) {
-			// Start => Add operation
-			int startFrame = (*it)->startFrame;
-			int endFrame = (*it)->endFrame;
-
-			HyperMediaLinkFast *addLink = new HyperMediaLinkFast(*it, Add);
-			HyperMediaLinkFast *removeLink = new HyperMediaLinkFast(*it, Remove);
-
-			fastLinks.push_back(addLink);
-			fastLinks.push_back(removeLink);
-
-			std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(startFrame);
-			if (itmapfast != fastMap.end())
-			{ // Found it
-				fastMap.at(startFrame).push_back(addLink);
-			}
-			else {
-				std::list<HyperMediaLinkFast *> thisList;
-				thisList.push_back(addLink);
-				fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(startFrame, thisList));
-			}
-
-			// End => Remove operation
-			itmapfast = fastMap.find(endFrame);
-			if (itmapfast != fastMap.end())
-			{ // Found it
-				fastMap.at(endFrame).push_back(removeLink);
-			}
-			else {
-				std::list<HyperMediaLinkFast *> thisList;
-				thisList.push_back(removeLink);
-				fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(endFrame, thisList));
-			}
-		}
-
-		// Test output / Example for accessing the map
-		/*for (int i = 0; i < 9000; i++) {
-			std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(i);
-			if (itmapfast != fastMap.end()) {
-				std::cout << "Frame " << i << " has " << itmapfast->second.size() << " fast links\n";
-				std::list<HyperMediaLinkFast *>::iterator it2fast;
-				for (it2fast = itmapfast->second.begin(); it2fast != itmapfast->second.end(); ++it2fast) {
-					std::cout << (*it2fast)->linkName << " | ";
-					std::cout << (*it2fast)->type << " | ";
-				}
-				std::cout << "\n";
-			}
-		}*/
-		std::cout << "Third pass ending..." << "\n";
-
+		generateListAndMaps(links);
 		enablePaintRect();
 		setMouseTracking(true);
 	}
 	catch (...) {
-		// TODO: if metadata doesnt exist still play? prompt the user?
-		std::cout << "metadata file not here" << "\n";
+		std::cout << "Cannot open metadata file. Playing video without links." << "\n";
+	}
+}
+
+// Generate the full map and fast map from zero
+void Frame::generateListAndMaps(std::list<HyperMediaLink *> listOfLinks)
+{
+	clearFastLinksList();
+	this->fullMap.clear();
+	this->fastMap.clear();
+
+	// Second pass
+	std::list<HyperMediaLink *>::iterator it;
+	for (it = listOfLinks.begin(); it != listOfLinks.end(); ++it) {
+		(*it)->beautifullyPrint();
+		for (int i = (*it)->startFrame; i < (*it)->endFrame; i++) {
+
+			std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
+			if (itmap != fullMap.end())
+			{ // Found it
+			  //std::list<HyperMediaLink *> thisList = itmap->second;
+			  //thisList.push_back(*it);
+				fullMap.at(i).push_back(*it);
+			}
+			else {
+				std::list<HyperMediaLink *> thisList;
+				thisList.push_back(*it);
+				fullMap.insert(std::pair<int, std::list<HyperMediaLink *>>(i, thisList));
+			}
+		}
+	}
+
+	// Third pass
+	for (it = listOfLinks.begin(); it != listOfLinks.end(); ++it) {
+		// Start => Add operation
+		int startFrame = (*it)->startFrame;
+		int endFrame = (*it)->endFrame;
+
+		HyperMediaLinkFast *addLink = new HyperMediaLinkFast(*it, Add);
+		HyperMediaLinkFast *removeLink = new HyperMediaLinkFast(*it, Remove);
+
+		fastLinks.push_back(addLink);
+		fastLinks.push_back(removeLink);
+
+		std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(startFrame);
+		if (itmapfast != fastMap.end())
+		{ // Found it
+			fastMap.at(startFrame).push_back(addLink);
+		}
+		else {
+			std::list<HyperMediaLinkFast *> thisList;
+			thisList.push_back(addLink);
+			fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(startFrame, thisList));
+		}
+
+		// End => Remove operation
+		itmapfast = fastMap.find(endFrame);
+		if (itmapfast != fastMap.end())
+		{ // Found it
+			fastMap.at(endFrame).push_back(removeLink);
+		}
+		else {
+			std::list<HyperMediaLinkFast *> thisList;
+			thisList.push_back(removeLink);
+			fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(endFrame, thisList));
+		}
 	}
 }
 
@@ -1294,7 +1255,12 @@ void Frame::freeLinkSystemMemory()
 	m_mCurrentLink.clear();
 	qDebug() << "\n HyperLinkForFrame Free";
 
-	
+	clearLinksList();
+	clearFastLinksList();
+}
+
+void Frame::clearLinksList()
+{
 	while (!links.empty())
 	{
 		HyperMediaLink * temp = links.back();
@@ -1303,9 +1269,10 @@ void Frame::freeLinkSystemMemory()
 	}
 	fullMap.clear();//!!!!! don't forget
 	qDebug() << "\n HyperMediaLinks Free";
-	
+}
 
-	
+void Frame::clearFastLinksList()
+{
 	while (!fastLinks.empty())
 	{
 		HyperMediaLinkFast * temp = fastLinks.back();
@@ -1315,4 +1282,3 @@ void Frame::freeLinkSystemMemory()
 	fastMap.clear();//!!!!! don't forget
 	qDebug() << "\n HyperMediaLinkFast Free";
 }
-

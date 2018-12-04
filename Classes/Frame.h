@@ -155,11 +155,6 @@ signals:
 //// HyperLink///////////////////////////////////////////////////////////
 private:
 	bool m_bIsPaintRect = false;
-	std::map<std::string, HyperLinkForFrame *> m_mCurrentLink;
-	std::map<int, std::list<HyperMediaLink *>> fullMap;
-	std::map<int, std::list<HyperMediaLinkFast *>> fastMap;
-	std::list<HyperMediaLink *> links;// is used for store the pointer of links and is also used to delete the meomory in the end
-	std::list<HyperMediaLinkFast *> fastLinks; // is used for store the pointer of links to delete in the end
 	int m_iImageOffset_x;
 	int m_iImageOffset_y;
 	double m_dImageScalor_x;
@@ -169,12 +164,21 @@ private:
 signals:
 	void linkSelected(std::map<std::string, HyperLinkForFrame *>);
 	void requestJump(std::string, int);
-
-	
+	void canEnablePlayerUI(bool);
 
 public:
-	void LoadMetaData();
+	void loadMetaData();
+	void generateListAndMaps(std::list<HyperMediaLink *>);
+	std::map<std::string, HyperLinkForFrame *> m_mCurrentLink;
+	std::map<int, std::list<HyperMediaLink *>> fullMap;
+	std::map<int, std::list<HyperMediaLinkFast *>> fastMap;
+
+	std::list<HyperMediaLink *> links;// is used for store the pointer of links and is also used to delete the meomory in the end
+	std::list<HyperMediaLinkFast *> fastLinks; // is used for store the pointer of links to delete in the end
+
 	void freeLinkSystemMemory();
+	void clearLinksList();
+	void clearFastLinksList();
 	void setCurrentLink();
 	void updateCurrentLink();
 	void mousePressEvent(QMouseEvent *event);

@@ -43,6 +43,8 @@ HyperMediaPlayer::HyperMediaPlayer(int iNum, int iWidth, int iHeight,int iFps, Q
 	ui.lineEdit_2->setEnabled(false);
 	ui.lineEdit_2->setFocusPolicy(Qt::NoFocus);
 
+	enablePlayerUI(false);
+
 	initialFrame();
 
 }
@@ -54,8 +56,7 @@ void HyperMediaPlayer::initialFrame()
 
 	connect(ui.lineEdit, SIGNAL(textChanged(QString)), ui.widget, SLOT(setRootFolder(QString)));
 	connect(ui.pushButton_4, SIGNAL(clicked()), ui.widget, SLOT(LoadVideo()));
-	//ui.widget->setFileList("D:\\Downloads\\London\\London\\LondonOne");
-	//ui.widget->setRootFolder("");
+
 	ui.widget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
 	ui.widget->Init();
 	ui.widget->enableJump();
@@ -76,6 +77,7 @@ void HyperMediaPlayer::initialFrame()
 	connect(ui.widget, SIGNAL(linkSelected(std::map<std::string, HyperLinkForFrame *>)), this, SLOT(updateSelectedLink(std::map<std::string, HyperLinkForFrame *>)));
 	connect(this, SIGNAL(linkOutputUpdated(QString)), ui.lineEdit_2, SLOT(setText(QString)));
 
+	connect(ui.widget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enablePlayerUI(bool)));
 	// jump to target Video 
 	connect(ui.widget, SIGNAL(requestJump(std::string, int)), this, SLOT(jumpToAnotherFrame(std::string, int)));
 }
