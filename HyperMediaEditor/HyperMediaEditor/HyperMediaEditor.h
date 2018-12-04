@@ -1,4 +1,4 @@
-#ifndef HYPERMEDIAEDITOR_H
+﻿#ifndef HYPERMEDIAEDITOR_H
 #define HYPERMEDIAEDITOR_H
 
 #include <QtWidgets/QMainWindow>
@@ -41,17 +41,17 @@ public:
 	std::list<HyperMediaLink *> tempLinks;
 	
 	std::string chosenLinkName;
-	std::string desiredLinkName;
+	//std::string desiredLinkName;
 	std::string chosenOriginFilename;
 	std::string chosenTargetFilename;
 
 	int chosenTargetFrame = 1;
 	int chosenStartFrame = 1;
 	int chosenEndFrame = 9000;
-	int chosenX = 0;
-	int chosenY = 0;
-	int chosenWidth = 0;
-	int chosenHeight = 0;
+	int chosenX = -1;
+	int chosenY = -1;
+	int chosenWidth = -1;
+	int chosenHeight = -1;
 
 	HyperMediaLink *temporaryLink = NULL;
 
@@ -87,8 +87,11 @@ private:
 
 signals:
 	void temporaryRectUpdated();
-
-
+	void temporaryRectUsable(bool, QRect);
+	void startFrameUpdated(int);
+	void endFrameUpdated(int);
+	void successfullySetLink();
+	 
 public slots:
 
 	void updateOriginTime(int i)
@@ -168,6 +171,7 @@ public slots:
 			originStartFrameIsChosen = true;
 			chosenStartFrame = desiredStartFrame;
 			enableOriginJumpToStartButton(true);
+			emit startFrameUpdated(chosenStartFrame);
 		}
 		ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
 	}
@@ -184,6 +188,7 @@ public slots:
 			originEndFrameIsChosen = true;
 			chosenEndFrame = desiredEndFrame;
 			enableOriginJumpToEndButton(true);
+			emit endFrameUpdated(chosenEndFrame);
 		}
 		ui.originSelectedEndTimeLabel->setText(frame2time(chosenEndFrame, ui.originSelectedEndTimeLabel->text()));
 	}
@@ -313,7 +318,7 @@ public slots:
 
 	void setLinkButtonTapped()
 	{
-
+		// TODO: emit successfullySetLink();
 	}
 
 	void removeLinkButtonTapped()
@@ -338,13 +343,23 @@ public slots:
 		saveTempLinksIntoFile();
 	}
 
-	void temporaryRectUpdated(QRect  rect )
+	void temporaryRectUpdated(QRect  rect)
 	{
-		chosenX = rect.x();
-		chosenY = rect.y();
-		chosenWidth = rect.width();
-		chosenHeight = rect.height();
-		emit temporaryRectUpdated();
+		// Check if rect is valid
+		// 遍历links，找他们的rect，看intersection
+		// 有intersection，不通过
+		//		发Warning
+		//		创建一个新的oldRect(chosenX, chosenY, chosenWidth, chosenHeight)
+		//		注意：如果是新创建的，并且无效，那么就是 -1 -1 -1 -1
+		//		emit temporaryRectUsable(false, oldRect)
+		// 通过！
+		//		赋值
+				chosenX = rect.x();
+				chosenY = rect.y();
+				chosenWidth = rect.width();
+				chosenHeight = rect.height();
+		//		创建一个新的newRect(chosenX, chosenY, chosenWidth, chosenHeight)
+		//		emit temporaryRectUsable(true, newRect)
 	}
 
 	void printTemporaryRect()

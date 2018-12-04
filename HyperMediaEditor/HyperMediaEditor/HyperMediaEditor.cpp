@@ -81,6 +81,11 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(ui.originJumpToStartButton, SIGNAL(clicked()), this, SLOT(originJumpToStartTapped()));
 	connect(ui.originJumpToEndButton, SIGNAL(clicked()), this, SLOT(originJumpToEndTapped()));
 
+	connect(this, SIGNAL(temporaryRectUsable(bool, QRect)), this, SLOT(rectChecked(bool, QRect)));
+	connect(this, SIGNAL(startFrameUpdated(int)), ui.leftWidget, SLOT(setStartFrame(int)));
+	connect(this, SIGNAL(endFrameUpdated(int)), ui.leftWidget, SLOT(setEndFrame(int)));
+	connect(this, SIGNAL(successfullySetLink()), ui.leftWidget, SLOT(linkSet()));
+
 	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
 
 	connect(ui.leftWidget, SIGNAL(newRectDrawn(QRect)), this, SLOT(temporaryRectUpdated(QRect)));
@@ -235,10 +240,10 @@ void HyperMediaEditor::resetOriginTempVariables()
 	originEndFrameIsChosen = false;
 	chosenStartFrame = 1;
 	chosenEndFrame = 9000;
-	chosenX = 0;
-	chosenY = 0;
-	chosenWidth = 0;
-	chosenHeight = 0;
+	chosenX = -1;
+	chosenY = -1;
+	chosenWidth = -1;
+	chosenHeight = -1;
 	enableOriginJumpToStartButton(false);
 	enableOriginJumpToEndButton(false);
 	ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
