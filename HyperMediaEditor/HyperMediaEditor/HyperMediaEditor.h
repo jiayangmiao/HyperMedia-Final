@@ -83,6 +83,8 @@ private:
 	void enableRectUI(bool);
 
 signals:
+	void temporaryRectUpdated();
+
 
 public slots:
 
@@ -280,6 +282,20 @@ public slots:
 	void saveButtonTapped()
 	{
 		saveTempLinksIntoFile();
+	}
+
+	void temporaryRectUpdated(QRect  rect )
+	{
+		chosenX = rect.x();
+		chosenY = rect.y();
+		chosenWidth = rect.width();
+		chosenHeight = rect.height();
+		emit temporaryRectUpdated();
+	}
+
+	void printTemporaryRect()
+	{
+		qDebug() << "temporary rect: " << chosenX << " " << chosenY << " " << chosenWidth << " " << chosenHeight;
 	}
 };
 
