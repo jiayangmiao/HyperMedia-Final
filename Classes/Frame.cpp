@@ -44,9 +44,9 @@ Frame::Frame( QWidget *parent) :
 
 	audioPlayer = new QMediaPlayer(this, QMediaPlayer::LowLatency);
 	connect(audioPlayer, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)), this, SLOT(updateAudioStatus(QMediaPlayer::MediaStatus)));
-	enableJump();
 	m_iCurrentFrame = 1;
 }
+
 void Frame::setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps,int iCacheSize, int iInitialLoadedFrameSize )
 {
 	m_iMaxFrame = iMaxframe;
@@ -294,6 +294,21 @@ void Frame::paintEvent(QPaintEvent *e)
 		}
 	}
 
+	if (getEnableEditRect())
+	{
+		if (m_mRectBeingEdited.first == m_iCurrentFrame)
+		{
+			QRect rect = m_mRectBeingEdited.second;
+			//printf("paintEventedit %d %d %d %d %d %d ", m_iCurrentFrame, m_mRectBeingEdited.first, rect.x(), rect.y(), rect.width(), rect.height());
+			int X = m_iImageOffset_x + (rect.x() * m_dImageScalor_x);
+			int Y = m_iImageOffset_y + (rect.y() * m_dImageScalor_y);
+			int Width = (rect.width() * m_dImageScalor_x);
+			int Height = (rect.height() * m_dImageScalor_y);
+			paint.setPen(QPen(Qt::yellow, 1, Qt::SolidLine, Qt::RoundCap));
+			paint.drawRect(QRect(X, Y, Width, Height));
+		}
+	}
+
 	paint.end();
 
 }
@@ -304,25 +319,110 @@ void Frame::mouseMoveEvent(QMouseEvent * event)
 	if (!isPaintRect())
 	{
 		qDebug() << " not enable PaintRect";
-		return;
 	}
 
 	QPoint curvePos = event->pos();
 	std::map<std::string, HyperLinkForFrame *> selectedLink;
-	std::map<std::string, HyperLinkForFrame *>::iterator it;
-	for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-		//std::cout << it->first << " | ";
-		int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x) ;
-		int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-		int Width = ((it->second)->width * m_dImageScalor_x) ;
-		int Height = ((it->second)->height * m_dImageScalor_y) ;
-		if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
-		{
-			selectedLink[it->first] = it->second;
-			setCursor(Qt::OpenHandCursor);
+	if (isPaintRect())
+	{
+		std::map<std::string, HyperLinkForFrame *>::iterator it;
+		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+			//std::cout << it->first << " | ";
+			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+			int Width = ((it->second)->width * m_dImageScalor_x);
+			int Height = ((it->second)->height * m_dImageScalor_y);
+			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+			{
+				selectedLink[it->first] = it->second;
+				setCursor(Qt::OpenHandCursor);
+			}
 		}
 	}
+	
 	emit linkSelected(selectedLink);
+
+	if (getEnableEditRect())
+	{
+		int targetX = (curvePos.x() - m_iImageOffset_x) / m_dImageScalor_x;
+		int targetY = (curvePos.y() - m_iImageOffset_y) / m_dImageScalor_y;
+		QRect currentRect = m_mRectBeingEdited.second;
+		if ((m_bEditStartPointSet == true) && (m_bEditEndPointSet == false))
+		{
+			qDebug("first set");
+			int Width = targetX - currentRect.x();
+			int Height = targetY - currentRect.y();
+			m_mRectBeingEdited.second.setWidth(Width);
+			m_mRectBeingEdited.second.setHeight(Height);
+			update();
+		}
+		else if ((m_mRectBeingEdited.first == m_iCurrentFrame) && (m_bEditEndPointSet == true))
+		{
+			//if (currentRect.contains(QPoint(targetX, targetY)))
+			if (m_bRectSelected == true)
+			{
+				//qDebug() << " ssss";
+				qDebug("move and drag rect");
+				if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.y())) // left top
+				{
+					setCursor(Qt::SizeFDiagCursor);
+					m_mRectBeingEdited.second.setTopLeft(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.right())) // right top
+				{
+					setCursor(Qt::SizeBDiagCursor);
+					m_mRectBeingEdited.second.setTopRight(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.bottom())) // left bottom
+				{
+					setCursor(Qt::SizeBDiagCursor);
+					m_mRectBeingEdited.second.setBottomLeft(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.right()) && isCloseTo(targetY, currentRect.bottom())) // right bottom
+				{
+					setCursor(Qt::SizeFDiagCursor);
+					m_mRectBeingEdited.second.setBottomRight(QPoint(targetX, targetY));
+				}
+				else if ((targetY > currentRect.y()) && (targetY < currentRect.bottom()) && (isCloseTo(targetX, currentRect.right()) || isCloseTo(targetX, currentRect.x())))
+				{
+					if (isCloseTo(targetX, currentRect.right())) // click on right edge
+					{
+						setCursor(Qt::SizeHorCursor);
+						m_mRectBeingEdited.second.setRight(targetX);
+					}
+					else if (isCloseTo(targetX, currentRect.x())) // click on left edge
+					{
+						setCursor(Qt::SizeHorCursor);
+						m_mRectBeingEdited.second.setLeft(targetX);
+					}
+				}
+				else if ((targetX > currentRect.x()) && (targetX < currentRect.right()) && (isCloseTo(targetY, currentRect.y()) || isCloseTo(targetY, currentRect.bottom())))
+				{
+					if (isCloseTo(targetY, currentRect.y())) // click on top edge
+					{
+						setCursor(Qt::SizeVerCursor);
+						m_mRectBeingEdited.second.setTop(targetY);
+					}
+					else if (isCloseTo(targetY, currentRect.bottom())) // click on botton edge
+					{
+						setCursor(Qt::SizeVerCursor);
+						m_mRectBeingEdited.second.setBottom(targetY);
+					}
+				}
+				else if (isCloseTo(targetX, currentRect.center().x()) && isCloseTo(targetY, currentRect.center().y()))
+				{
+					setCursor(Qt::SizeAllCursor);
+					m_mRectBeingEdited.second.moveCenter(QPoint(targetX, targetY));
+				}
+				else
+				{
+					;
+				}
+				update();
+			}
+		}
+	}
+
 }
 
 void Frame::mousePressEvent(QMouseEvent *event)
@@ -331,22 +431,122 @@ void Frame::mousePressEvent(QMouseEvent *event)
 	if (!isPaintRect())
 	{
 		qDebug() << " not enable PaintRect";
-		return;
 	}
 
 	QPoint curvePos = event->pos();
-	std::map<std::string, HyperLinkForFrame *> selectedLink;
-	std::map<std::string, HyperLinkForFrame *>::iterator it;
-	for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-		//std::cout << it->first << " | ";
-		int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-		int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-		int Width = ((it->second)->width * m_dImageScalor_x);
-		int Height = ((it->second)->height * m_dImageScalor_y);
-		if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+
+	if (isPaintRect())
+	{
+		std::map<std::string, HyperLinkForFrame *> selectedLink;
+		std::map<std::string, HyperLinkForFrame *>::iterator it;
+		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+			//std::cout << it->first << " | ";
+			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+			int Width = ((it->second)->width * m_dImageScalor_x);
+			int Height = ((it->second)->height * m_dImageScalor_y);
+			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+			{
+				selectedLink[it->first] = it->second;
+				setCursor(Qt::ClosedHandCursor);
+			}
+		}
+	}
+	
+	if (getEnableEditRect())
+	{
+		if (Qt::LeftButton == event->button())
 		{
-			selectedLink[it->first] = it->second;
-			setCursor(Qt::ClosedHandCursor);
+			QRect currentRect = m_mRectBeingEdited.second;
+			int targetX = (curvePos.x() - m_iImageOffset_x) / m_dImageScalor_x;
+			int targetY = (curvePos.y() - m_iImageOffset_y) / m_dImageScalor_y;
+			if ((m_mRectBeingEdited.first == m_iCurrentFrame) && (m_bEditEndPointSet))
+			{
+				m_bRectSelected = true;
+				//qDebug() << " ssss";
+				if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.y())) // left top
+				{
+					setCursor(Qt::SizeFDiagCursor);
+					m_mRectBeingEdited.second.setTopLeft(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.right())) // right top
+				{
+					setCursor(Qt::SizeBDiagCursor);
+					m_mRectBeingEdited.second.setTopRight(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.bottom())) // left bottom
+				{
+					setCursor(Qt::SizeBDiagCursor);
+					m_mRectBeingEdited.second.setBottomLeft(QPoint(targetX, targetY));
+				}
+				else if (isCloseTo(targetX, currentRect.right()) && isCloseTo(targetY, currentRect.bottom())) // right bottom
+				{
+					setCursor(Qt::SizeFDiagCursor);
+					m_mRectBeingEdited.second.setBottomRight(QPoint(targetX, targetY));
+				}
+				else if ((targetY > currentRect.y()) && (targetY < currentRect.bottom()) && (isCloseTo(targetX, currentRect.right()) || isCloseTo(targetX, currentRect.x())))
+				{
+					if (isCloseTo(targetX, currentRect.right())) // click on right edge
+					{
+						setCursor(Qt::SizeHorCursor);
+						m_mRectBeingEdited.second.setRight(targetX);
+					}
+					else if (isCloseTo(targetX, currentRect.x())) // click on left edge
+					{
+						setCursor(Qt::SizeHorCursor);
+						m_mRectBeingEdited.second.setLeft(targetX);
+					}
+				}
+				else if ((targetX > currentRect.x()) && (targetX < currentRect.right()) && (isCloseTo(targetY, currentRect.y()) || isCloseTo(targetY, currentRect.bottom())))
+				{
+					if (isCloseTo(targetY, currentRect.y())) // click on top edge
+					{
+						setCursor(Qt::SizeVerCursor);
+						m_mRectBeingEdited.second.setTop(targetY);
+					}
+					else if (isCloseTo(targetY, currentRect.bottom())) // click on botton edge
+					{
+						setCursor(Qt::SizeVerCursor);
+						m_mRectBeingEdited.second.setBottom(targetY);
+					}
+				}
+				else if (isCloseTo(targetX, currentRect.center().x()) && isCloseTo(targetY, currentRect.center().y()))
+				{
+					setCursor(Qt::SizeAllCursor);
+					m_mRectBeingEdited.second.moveCenter(QPoint(targetX, targetY));
+				}
+				else
+				{
+					;
+				}
+			}
+			else
+			{
+				if (m_mRectBeingEdited.first != -1)
+				{
+					resetRectBeingEdited();
+				}
+				if (m_bEditStartPointSet == false)
+				{
+
+					m_mRectBeingEdited.second.setX(targetX);
+					m_mRectBeingEdited.second.setY(targetY);
+					m_mRectBeingEdited.second.setWidth(1);
+					m_mRectBeingEdited.second.setHeight(1);
+					m_mRectBeingEdited.first = m_iCurrentFrame;
+					m_bEditStartPointSet = true;
+					update();
+				}
+				else
+				{
+					//qDebug() << "drag ";
+					int Width = targetX - currentRect.x();
+					int Height = targetY - currentRect.y();
+					m_mRectBeingEdited.second.setWidth(Width);
+					m_mRectBeingEdited.second.setHeight(Height);
+				}
+
+			}
 		}
 	}
 }
@@ -354,39 +554,131 @@ void Frame::mousePressEvent(QMouseEvent *event)
 void Frame::mouseReleaseEvent(QMouseEvent *event)
 {
 	setCursor(Qt::ArrowCursor);
-	if (!isPaintRect())
-	{
-		qDebug() << " not enable PaintRect";
-		return;
-	}
-	if (!ifJumpEnbale())
-	{
-		return;
-	}
 
 	QPoint curvePos = event->pos();
-	std::map<std::string, HyperLinkForFrame *> selectedLink;
-	std::map<std::string, HyperLinkForFrame *>::iterator it;
-	for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-		//std::cout << it->first << " | ";
-		int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-		int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-		int Width = ((it->second)->width * m_dImageScalor_x);
-		int Height = ((it->second)->height * m_dImageScalor_y);
-		if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+
+	if (ifJumpEnbale())
+	{
+		if (!isPaintRect())
 		{
-			selectedLink[it->first] = it->second;
-			setCursor(Qt::OpenHandCursor);
-			framePause();
-			m_bIsStopped = true;
-			loaderThread.interrupt();
-			while (!loaderThread.isStoped())
+			qDebug() << " not enable PaintRect";
+			return;
+		}
+		std::map<std::string, HyperLinkForFrame *> selectedLink;
+		std::map<std::string, HyperLinkForFrame *>::iterator it;
+		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+			//std::cout << it->first << " | ";
+			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+			int Width = ((it->second)->width * m_dImageScalor_x);
+			int Height = ((it->second)->height * m_dImageScalor_y);
+			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
 			{
-				//printf("!");
-				loaderThread.exit();
+				selectedLink[it->first] = it->second;
+				setCursor(Qt::OpenHandCursor);
+				framePause();
+				m_bIsStopped = true;
+				loaderThread.interrupt();
+				while (!loaderThread.isStoped())
+				{
+					//printf("!");
+					loaderThread.exit();
+				}
+				emit requestJump((selectedLink.begin()->second)->targetFilename, (selectedLink.begin()->second)->targetFrame);
+				break;
 			}
-			emit requestJump((selectedLink.begin()->second)->targetFilename, (selectedLink.begin()->second)->targetFrame);
-			break;
+		}
+	}
+
+	if (getEnableEditRect())
+	{
+		if (Qt::LeftButton == event->button())
+		{
+			QRect currentRect = m_mRectBeingEdited.second;
+			int targetX = (curvePos.x() - m_iImageOffset_x) / m_dImageScalor_x;
+			int targetY = (curvePos.y() - m_iImageOffset_y) / m_dImageScalor_y;
+			if ((m_mRectBeingEdited.first == m_iCurrentFrame) && (m_bEditEndPointSet))
+			{
+				if (m_bRectSelected == true)
+				{
+					//qDebug() << " ssss";
+
+					if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.y())) // left top
+					{
+						setCursor(Qt::SizeFDiagCursor);
+						m_mRectBeingEdited.second.setTopLeft(QPoint(targetX, targetY));
+					}
+					else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.right())) // right top
+					{
+						setCursor(Qt::SizeBDiagCursor);
+						m_mRectBeingEdited.second.setTopRight(QPoint(targetX, targetY));
+					}
+					else if (isCloseTo(targetX, currentRect.x()) && isCloseTo(targetY, currentRect.bottom())) // left bottom
+					{
+						setCursor(Qt::SizeBDiagCursor);
+						m_mRectBeingEdited.second.setBottomLeft(QPoint(targetX, targetY));
+					}
+					else if (isCloseTo(targetX, currentRect.right()) && isCloseTo(targetY, currentRect.bottom())) // right bottom
+					{
+						setCursor(Qt::SizeFDiagCursor);
+						m_mRectBeingEdited.second.setBottomRight(QPoint(targetX, targetY));
+					}
+					else if ((targetY > currentRect.y()) && (targetY < currentRect.bottom()) && (isCloseTo(targetX, currentRect.right()) || isCloseTo(targetX, currentRect.x())))
+					{
+						if (isCloseTo(targetX, currentRect.right())) // click on right edge
+						{
+							setCursor(Qt::SizeHorCursor);
+							m_mRectBeingEdited.second.setRight(targetX);
+						}
+						else if (isCloseTo(targetX, currentRect.x())) // click on left edge
+						{
+							setCursor(Qt::SizeHorCursor);
+							m_mRectBeingEdited.second.setLeft(targetX);
+						}
+					}
+					else if ((targetX > currentRect.x()) && (targetX < currentRect.right()) && (isCloseTo(targetY, currentRect.y()) || isCloseTo(targetY, currentRect.bottom())))
+					{
+						if (isCloseTo(targetY, currentRect.y())) // click on top edge
+						{
+							setCursor(Qt::SizeVerCursor);
+							m_mRectBeingEdited.second.setTop(targetY);
+						}
+						else if (isCloseTo(targetY, currentRect.bottom())) // click on botton edge
+						{
+							setCursor(Qt::SizeVerCursor);
+							m_mRectBeingEdited.second.setBottom(targetY);
+						}
+					}
+					else if (isCloseTo(targetX, currentRect.center().x()) && isCloseTo(targetY, currentRect.center().y()))
+					{
+						setCursor(Qt::SizeAllCursor);
+						m_mRectBeingEdited.second.moveCenter(QPoint(targetX, targetY));
+					}
+					else
+					{
+						;
+					}
+					update();
+					setCursor(Qt::ArrowCursor);
+					m_bRectSelected = false;
+					emit newRectDrawn(m_mRectBeingEdited.second);
+				}
+			}
+			else
+			{
+				if (m_bEditStartPointSet == true)
+				{
+
+					int Width = targetX - currentRect.x();
+					int Height = targetY - currentRect.y();
+					m_mRectBeingEdited.second.setWidth(Width);
+					m_mRectBeingEdited.second.setHeight(Height);
+					m_bEditEndPointSet = true;
+					update();
+					emit newRectDrawn(m_mRectBeingEdited.second);
+					qDebug("first set finish");
+				}
+			}
 		}
 	}
 }
