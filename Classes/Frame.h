@@ -111,7 +111,7 @@ public:
 // write back to m_mCurrentLink ?
 
 private:
-	bool m_bEnableEditRect = true;
+	bool m_bEnableEditRect = false;
 
 public:
 	void enableEditRect()
