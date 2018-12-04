@@ -28,6 +28,8 @@
 #include <QBuffer>
 #include <QMouseEvent>
 #include <QMessageBox>
+#include <QPainterPath>
+
 #include "multiThread.h"
 #include "HyperLinkForFrame.h"
 
@@ -104,7 +106,52 @@ public:
 	void Init();
 	void setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps, int iCacheSize, int iInitialLoadedFrameSize = 100);
 	void setVideoName(QString videoName);
-	
+
+//// For Editor /////////////////////////////////////////////////////////
+// write back to m_mCurrentLink ?
+
+private:
+	bool m_bEnableEditRect = true;
+
+public:
+	void enableEditRect()
+	{
+		m_bEnableEditRect = true;
+	}
+
+	void disableEditRect()
+	{
+		m_bEnableEditRect = false;
+	}
+
+	bool getEnableEditRect()
+	{
+		return m_bEnableEditRect;
+	}
+
+	std::pair<int, QRect> m_mRectBeingEdited;
+	bool m_bEditStartPointSet = false;
+	bool m_bEditEndPointSet = false;
+
+public slots:
+	void resetRectBeingEdited()
+	{
+		m_mRectBeingEdited.first = -1;
+		m_bEditStartPointSet = false;
+		m_bEditEndPointSet = false;
+		m_mRectBeingEdited.second.setWidth(0);
+		m_mRectBeingEdited.second.setHeight(0);
+		m_mRectBeingEdited.second.setX(0);
+		m_mRectBeingEdited.second.setY(0);
+		update();
+	}
+
+signals:
+	void newRectDrawn(QRect);
+
+/////End for Editor////////////////////////////////////////////////////////////
+
+
 //// HyperLink///////////////////////////////////////////////////////////
 private:
 	bool m_bIsPaintRect = false;

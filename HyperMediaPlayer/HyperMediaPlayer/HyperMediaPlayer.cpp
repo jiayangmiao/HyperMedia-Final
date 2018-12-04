@@ -58,6 +58,8 @@ void HyperMediaPlayer::initialFrame()
 	//ui.widget->setRootFolder("");
 	ui.widget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
 	ui.widget->Init();
+	ui.widget->enableJump();
+	ui.widget->disableEditRect();
 
 	//ui.widget->initMemory();
 	//ui.widget->LoadAllFrame();
