@@ -82,6 +82,9 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(ui.originJumpToEndButton, SIGNAL(clicked()), this, SLOT(originJumpToEndTapped()));
 
 	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
+
+	connect(ui.leftWidget, SIGNAL(newRectDrawn(QRect)), this, SLOT(temporaryRectUpdated(QRect)));
+	connect(this, SIGNAL(temporaryRectUpdated()), this, SLOT(printTemporaryRect()));
 }
 
 void HyperMediaEditor::initialTargetFrame()
