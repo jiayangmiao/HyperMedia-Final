@@ -73,8 +73,8 @@ private:
 
 	void resetTempVariables();
 
-	void addLink(HyperMediaLink *newLink);
-	void removeLink(std::string linkName);
+	void addLinkToTemp(HyperMediaLink *newLink);
+	void removeLinkFromTemp(std::string linkName);
 
 signals:
 
@@ -149,12 +149,12 @@ public slots:
 	void updateOriginVideoInfo()
 	{
 		resetTempVariables();
-
 		enableOriginPlayerUI(true);
 		enableLinkOperationUI(true);
 		originIsLoaded = true;
 		chosenOriginFilename = ui.leftWidget->m_sVideoName;
 		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
+		resetTempVariables();
 		loadTempLinkFromFrame();
 	}
 
@@ -207,8 +207,11 @@ public slots:
 			QMessageBox::warning(this, "Error", "Cannot find link with provided name.");
 		}
 		else {
-			// Link does exist!
+			removeLinkFromTemp(ui.linkNameLineEdit->text().toStdString());
+			ui.leftWidget->generateListAndMaps(tempLinks);
+			setupComboBoxFromTemp();
 
+			resetTempVariables();
 		}
 	}
 };

@@ -118,6 +118,8 @@ void HyperMediaEditor::loadTempLinkFromFrame()
 
 void HyperMediaEditor::setupComboBoxFromTemp()
 {
+	std::cout << "Temp link size " << tempLinks.size() << endl;
+
 	// Clear all combo box items
 	for (int i = ui.selectLinkComboBox->count() - 1; i >= 0; i--) {
 		ui.selectLinkComboBox->removeItem(i);
@@ -158,14 +160,29 @@ HyperMediaLink * HyperMediaEditor::tempLinkWithName(std::string name)
 	return NULL;
 }
 
-void HyperMediaEditor::addLink(HyperMediaLink *newLink)
+void HyperMediaEditor::addLinkToTemp(HyperMediaLink *newLink)
 {
 
 }
 
-void HyperMediaEditor::removeLink(std::string linkName)
+void HyperMediaEditor::removeLinkFromTemp(std::string name)
 {
-	
+	std::cout << "Temp link now size " << tempLinks.size() << endl;
+
+	std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
+	while (it != tempLinks.end())
+	{
+		if ((*it)->linkName.compare(name) == 0) {
+			std::cout << "Erasing link with " << (*it)->linkName << endl;
+			it = tempLinks.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	std::cout << "Temp link now size " << tempLinks.size() << endl;
+
 }
 
 void HyperMediaEditor::resetTempVariables()
@@ -173,8 +190,6 @@ void HyperMediaEditor::resetTempVariables()
 	originStartFrameIsChosen = false;
 	originEndFrameIsChosen = false;
 	targetFrameIsChosen = false;
-
-	clearTempLinks();
 
 	chosenLinkName = "";
 
