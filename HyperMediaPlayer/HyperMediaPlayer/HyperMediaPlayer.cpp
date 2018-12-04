@@ -54,8 +54,7 @@ void HyperMediaPlayer::initialFrame()
 
 	connect(ui.lineEdit, SIGNAL(textChanged(QString)), ui.widget, SLOT(setRootFolder(QString)));
 	connect(ui.pushButton_4, SIGNAL(clicked()), ui.widget, SLOT(LoadVideo()));
-	//ui.widget->setFileList("D:\\Downloads\\London\\London\\LondonOne");
-	//ui.widget->setRootFolder("");
+
 	ui.widget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
 	ui.widget->Init();
 

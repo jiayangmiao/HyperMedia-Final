@@ -33,12 +33,15 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Source Files\Shared Classes">
+      <UniqueIdentifier>{b0bff485-dc05-4b81-bc66-c4b4da85fae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shared Classes">
+      <UniqueIdentifier>{b15c86b0-9103-41c9-b4e4-2b9dfd9c04ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HyperMediaEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_HyperMediaEditor.cpp">
@@ -49,21 +52,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_HyperMediaEditor.cpp">
       <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Classes\multiThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Classes\Frame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Classes\HyperLinkForFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Classes\HyperMediaLink.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Classes\HyperMediaLinkFast.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_multiThread.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -77,21 +65,39 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Frame.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Classes\Frame.cpp">
+      <Filter>Source Files\Shared Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Classes\HyperLinkForFrame.cpp">
+      <Filter>Source Files\Shared Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Classes\HyperMediaLink.cpp">
+      <Filter>Source Files\Shared Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Classes\HyperMediaLinkFast.cpp">
+      <Filter>Source Files\Shared Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Classes\multiThread.cpp">
+      <Filter>Source Files\Shared Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="HyperMediaEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="HyperMediaEditor.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="HyperMediaEditor.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="HyperMediaEditor.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\Classes\multiThread.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\..\Classes\Frame.h">
+      <Filter>Header Files\Shared Classes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\Classes\multiThread.h">
+      <Filter>Header Files\Shared Classes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HyperMediaEditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -100,13 +106,13 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Classes\HyperLinkForFrame.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shared Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Classes\HyperMediaLink.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shared Classes</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Classes\HyperMediaLinkFast.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shared Classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

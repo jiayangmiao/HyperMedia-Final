@@ -79,7 +79,7 @@ void Frame::LoadVideo(int startFrame)
 	_clear();
 	disablePaintRect();
 	freeLinkSystemMemory();
-	LoadMetaData();
+	loadMetaData();
 	m_bVideoIsLoaded = true;
 	m_bAudioLoaded = false;
 	enablePaintRect();
@@ -981,7 +981,7 @@ void Frame::updateCurrentLink()
 }
 
 
-void Frame::LoadMetaData()
+void Frame::loadMetaData()
 {
 	try {
 		std::string sFullFilePath = m_sRootFolder + "\\" + m_sVideoName + m_sMetaDataSuffix;
@@ -989,17 +989,6 @@ void Frame::LoadMetaData()
 		rapidxml::xml_document<> doc;
 		doc.parse<0>(metadataFile.data());
 
-		// To printout whole xml
-		//rapidxml::print(std::cout, doc, 0);
-
-		// filename. maybe we dont need it ?
-		std::string filename = doc.first_node("filename")->value();
-		std::cout << "filename is " << filename << "\n";
-
-		// TODO: find out where to save the maps
-
-		// Going through all links three times
-		//std::list<HyperMediaLink *> links;
 		rapidxml::xml_node<> *linkNode = doc.first_node("links");
 		for (rapidxml::xml_node<> *thisNode = linkNode->first_node("link"); thisNode; thisNode = thisNode->next_sibling())
 		{
@@ -1007,104 +996,78 @@ void Frame::LoadMetaData()
 			links.push_back(thisLink);
 		}
 
-		// Second pass
-		std::cout << "Starting second pass..." << "\n";
-		
-
-		std::list<HyperMediaLink *>::iterator it;
-		for (it = links.begin(); it != links.end(); ++it) {
-			(*it)->beautifullyPrint();
-			for (int i = (*it)->startFrame; i < (*it)->endFrame; i++) {
-
-				std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
-				if (itmap != fullMap.end())
-				{ // Found it
-				  //std::list<HyperMediaLink *> thisList = itmap->second;
-				  //thisList.push_back(*it);
-					fullMap.at(i).push_back(*it);
-				}
-				else {
-					std::list<HyperMediaLink *> thisList;
-					thisList.push_back(*it);
-					fullMap.insert(std::pair<int, std::list<HyperMediaLink *>>(i, thisList));
-				}
-			}
-		}
-
-		// Test output / Example for accessing the map
-		/*for (int i = 0; i < 9000; i++) {
-			std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
-			if (itmap != fullMap.end()) {
-				std::cout << "Frame " << i << " has " << itmap->second.size() << " links\n";
-				std::list<HyperMediaLink *>::iterator it2;
-				for (it2 = itmap->second.begin(); it2 != itmap->second.end(); ++it2) {
-					std::cout << (*it2)->linkName << " | ";
-				}
-				std::cout << "\n";
-			}
-		}*/
-		std::cout << "Second pass ending..." << "\n";
-
-		// Third pass
-		std::cout << "Starting third pass..." << "\n";
-		
-
-		for (it = links.begin(); it != links.end(); ++it) {
-			// Start => Add operation
-			int startFrame = (*it)->startFrame;
-			int endFrame = (*it)->endFrame;
-
-			HyperMediaLinkFast *addLink = new HyperMediaLinkFast(*it, Add);
-			HyperMediaLinkFast *removeLink = new HyperMediaLinkFast(*it, Remove);
-
-			fastLinks.push_back(addLink);
-			fastLinks.push_back(removeLink);
-
-			std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(startFrame);
-			if (itmapfast != fastMap.end())
-			{ // Found it
-				fastMap.at(startFrame).push_back(addLink);
-			}
-			else {
-				std::list<HyperMediaLinkFast *> thisList;
-				thisList.push_back(addLink);
-				fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(startFrame, thisList));
-			}
-
-			// End => Remove operation
-			itmapfast = fastMap.find(endFrame);
-			if (itmapfast != fastMap.end())
-			{ // Found it
-				fastMap.at(endFrame).push_back(removeLink);
-			}
-			else {
-				std::list<HyperMediaLinkFast *> thisList;
-				thisList.push_back(removeLink);
-				fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(endFrame, thisList));
-			}
-		}
-
-		// Test output / Example for accessing the map
-		/*for (int i = 0; i < 9000; i++) {
-			std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(i);
-			if (itmapfast != fastMap.end()) {
-				std::cout << "Frame " << i << " has " << itmapfast->second.size() << " fast links\n";
-				std::list<HyperMediaLinkFast *>::iterator it2fast;
-				for (it2fast = itmapfast->second.begin(); it2fast != itmapfast->second.end(); ++it2fast) {
-					std::cout << (*it2fast)->linkName << " | ";
-					std::cout << (*it2fast)->type << " | ";
-				}
-				std::cout << "\n";
-			}
-		}*/
-		std::cout << "Third pass ending..." << "\n";
-
+		generateListAndMaps(links);
 		enablePaintRect();
 		setMouseTracking(true);
 	}
 	catch (...) {
 		// TODO: if metadata doesnt exist still play? prompt the user?
 		std::cout << "metadata file not here" << "\n";
+	}
+}
+
+// Generate the full map and fast map from zero
+void Frame::generateListAndMaps(std::list<HyperMediaLink *> listOfLinks)
+{
+	clearFastLinksList();
+	this->fullMap.clear();
+	this->fastMap.clear();
+
+	// Second pass
+	std::list<HyperMediaLink *>::iterator it;
+	for (it = listOfLinks.begin(); it != listOfLinks.end(); ++it) {
+		(*it)->beautifullyPrint();
+		for (int i = (*it)->startFrame; i < (*it)->endFrame; i++) {
+
+			std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
+			if (itmap != fullMap.end())
+			{ // Found it
+			  //std::list<HyperMediaLink *> thisList = itmap->second;
+			  //thisList.push_back(*it);
+				fullMap.at(i).push_back(*it);
+			}
+			else {
+				std::list<HyperMediaLink *> thisList;
+				thisList.push_back(*it);
+				fullMap.insert(std::pair<int, std::list<HyperMediaLink *>>(i, thisList));
+			}
+		}
+	}
+
+	// Third pass
+	for (it = listOfLinks.begin(); it != listOfLinks.end(); ++it) {
+		// Start => Add operation
+		int startFrame = (*it)->startFrame;
+		int endFrame = (*it)->endFrame;
+
+		HyperMediaLinkFast *addLink = new HyperMediaLinkFast(*it, Add);
+		HyperMediaLinkFast *removeLink = new HyperMediaLinkFast(*it, Remove);
+
+		fastLinks.push_back(addLink);
+		fastLinks.push_back(removeLink);
+
+		std::map<int, std::list<HyperMediaLinkFast *>>::iterator itmapfast = fastMap.find(startFrame);
+		if (itmapfast != fastMap.end())
+		{ // Found it
+			fastMap.at(startFrame).push_back(addLink);
+		}
+		else {
+			std::list<HyperMediaLinkFast *> thisList;
+			thisList.push_back(addLink);
+			fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(startFrame, thisList));
+		}
+
+		// End => Remove operation
+		itmapfast = fastMap.find(endFrame);
+		if (itmapfast != fastMap.end())
+		{ // Found it
+			fastMap.at(endFrame).push_back(removeLink);
+		}
+		else {
+			std::list<HyperMediaLinkFast *> thisList;
+			thisList.push_back(removeLink);
+			fastMap.insert(std::pair<int, std::list<HyperMediaLinkFast *>>(endFrame, thisList));
+		}
 	}
 }
 
@@ -1118,7 +1081,12 @@ void Frame::freeLinkSystemMemory()
 	m_mCurrentLink.clear();
 	qDebug() << "\n HyperLinkForFrame Free";
 
-	
+	clearLinksList();
+	clearFastLinksList();
+}
+
+void Frame::clearLinksList()
+{
 	while (!links.empty())
 	{
 		HyperMediaLink * temp = links.back();
@@ -1127,9 +1095,10 @@ void Frame::freeLinkSystemMemory()
 	}
 	fullMap.clear();//!!!!! don't forget
 	qDebug() << "\n HyperMediaLinks Free";
-	
+}
 
-	
+void Frame::clearFastLinksList()
+{
 	while (!fastLinks.empty())
 	{
 		HyperMediaLinkFast * temp = fastLinks.back();
@@ -1139,4 +1108,3 @@ void Frame::freeLinkSystemMemory()
 	fastMap.clear();//!!!!! don't forget
 	qDebug() << "\n HyperMediaLinkFast Free";
 }
-

@@ -70,8 +70,15 @@ public slots:
 		History history(ui.widget->m_sRootFolder, ui.widget->m_iCurrentFrame);
 		frameStack.append(history);
 		//qDebug() << "targetFrame: "<<targetFrame;
-		QString temp = "D:\\Downloads\\London\\London\\";
-		temp += QString::fromStdString(targetVideoName);
+
+		std::cout << ui.widget->m_sRootFolder << endl;
+		std::size_t found = ui.widget->m_sRootFolder.find_last_of("/\\");
+		std::string parentDirectory = ui.widget->m_sRootFolder.substr(0, found);
+		parentDirectory = parentDirectory.append("/");
+		std::cout << " path: " << parentDirectory << '\n';
+
+		QString temp = QString::fromStdString(parentDirectory) + QString::fromStdString(targetVideoName); //"D:\\Downloads\\London\\London\\";
+		//temp += QString::fromStdString(targetVideoName);
 		ui.lineEdit->setText(temp);
 		ui.widget->setRootFolder(temp);
 		ui.widget->LoadVideo(targetFrame);
