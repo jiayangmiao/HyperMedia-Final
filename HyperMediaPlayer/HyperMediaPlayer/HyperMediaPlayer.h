@@ -44,7 +44,7 @@ private:
 
 signals:
 	void linkOutputUpdated(QString);
-
+	
 public slots:
 
 	void updateTime(int i)
@@ -99,6 +99,13 @@ public slots:
 		ui.widget->setRootFolder(temp);
 		ui.widget->LoadVideo(history.iHistoryFrame);
 		ui.widget->m_bIsStopped = false;
+	}
+
+	void enablePlayerUI(bool enable)
+	{
+		ui.pushButton->setEnabled(enable);
+		ui.pushButton_2->setEnabled(enable);
+		ui.pushButton_5->setEnabled(enable);
 	}
 };
 

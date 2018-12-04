@@ -70,9 +70,9 @@ void Frame::LoadVideo(int startFrame)
 {
 	if (m_bIsStopped == false)
 	{
-	QMessageBox::StandardButton reply;
-	reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
-	return;
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::critical(this, tr("Load Video Warning"), " Please Stop Video First!");
+		return;
 	}
 
 	m_FrameCacheMap.clear();
@@ -98,7 +98,7 @@ void Frame::LoadVideo(int startFrame)
 	qDebug() << "current Frame: " << m_iCurrentFrame;
 	emit currentFrameUpdated(m_iCurrentFrame);
 	qDebug() << "LoadVideo Finished";
-
+	emit canEnablePlayerUI(true);
 }
 
 Frame::~Frame()
@@ -1056,8 +1056,7 @@ void Frame::loadMetaData()
 		setMouseTracking(true);
 	}
 	catch (...) {
-		// TODO: if metadata doesnt exist still play? prompt the user?
-		std::cout << "metadata file not here" << "\n";
+		std::cout << "Cannot open metadata file. Playing video without links." << "\n";
 	}
 }
 

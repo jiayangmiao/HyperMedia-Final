@@ -117,8 +117,7 @@ private:
 signals:
 	void linkSelected(std::map<std::string, HyperLinkForFrame *>);
 	void requestJump(std::string, int);
-
-	
+	void canEnablePlayerUI(bool);
 
 public:
 	void loadMetaData();
