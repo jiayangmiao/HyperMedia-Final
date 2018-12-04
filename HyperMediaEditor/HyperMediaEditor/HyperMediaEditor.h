@@ -73,7 +73,7 @@ private:
 	void setupComboBoxFromTemp();
 	HyperMediaLink * tempLinkWithName(std::string name);
 
-	void resetTempVariables();
+	void resetAllTempVariables();
 	void resetOriginTempVariables();
 	void resetTargetTempVariables();
 
@@ -310,7 +310,7 @@ public slots:
 			ui.leftWidget->generateListAndMaps(tempLinks);
 			setupComboBoxFromTemp();
 
-			resetTempVariables();
+			resetAllTempVariables();
 		}
 	}
 
