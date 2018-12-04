@@ -140,7 +140,7 @@
       <item>
        <widget class="QPushButton" name="selectArea">
         <property name="text">
-         <string>Select Area</string>
+         <string>Select Area Off</string>
         </property>
        </widget>
       </item>
