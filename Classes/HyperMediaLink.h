@@ -7,6 +7,8 @@ class HyperMediaLink
 {
 public:
 	HyperMediaLink(rapidxml::xml_node<> *node);
+	//HyperMediaLink(const HyperMediaLink &link);
+	HyperMediaLink(std::string, int, int, std::string, int, int, int, int, int);
 
 	std::string linkName;
 	int startFrame;

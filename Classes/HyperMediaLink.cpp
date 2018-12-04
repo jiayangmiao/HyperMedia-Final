@@ -14,6 +14,34 @@ HyperMediaLink::HyperMediaLink(rapidxml::xml_node<> *node)
 	this->width = atoi(node->first_node("width")->value());
 }
 
+/*
+HyperMediaLink::HyperMediaLink(const HyperMediaLink &link)
+{
+	this->linkName = link.linkName;
+	this->startFrame = link.startFrame;
+	this->endFrame = link.endFrame;
+	this->targetFilename = link.targetFilename;
+	this->targetFrame = link.targetFrame;
+	this->X = link.X;
+	this->Y = link.Y;
+	this->height = link.height;
+	this->width = link.width;
+}
+*/
+
+HyperMediaLink::HyperMediaLink(std::string linkName, int startFrame, int endFrame, std::string targetFilename, int targetFrame, int X, int Y, int height, int width)
+{
+	this->linkName = linkName;
+	this->startFrame = startFrame;
+	this->endFrame = endFrame;
+	this->targetFilename = targetFilename;
+	this->targetFrame = targetFrame;
+	this->X = X;
+	this->Y = Y;
+	this->height = height;
+	this->width = width;
+}
+
 void HyperMediaLink::beautifullyPrint()
 {
 	std::cout << "_________________________" << "\n";

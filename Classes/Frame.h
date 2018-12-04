@@ -64,12 +64,9 @@ private:
 
 	bool m_bVideoIsLoaded = false;
 	
-
-	
-	std::string m_sVideoName;
-	std::string m_sVideoSuffix = ".rgb";// ".rgb";
-	std::string m_sAudioSuffix = ".wav";
-	std::string m_sMetaDataSuffix = ".xml";
+	const std::string m_sVideoSuffix = ".rgb";// ".rgb";
+	const std::string m_sAudioSuffix = ".wav";
+	const std::string m_sMetaDataSuffix = ".xml";
 
 	bool m_bAudioLoaded = false;
 	
@@ -89,6 +86,7 @@ public:
 	void paintEvent(QPaintEvent *e);
 	QList<QFileInfo> fileList;
 	QDir dirPath;
+	std::string m_sVideoName;
 	DWORD ** pFrames;
 	DWORD * pFrame;
 	std::string m_sRootFolder = "";// "D:\\Downloads\\London\\London\\LondonOne\\LondonOne";
@@ -106,6 +104,9 @@ public:
 	void Init();
 	void setBasic(int iMaxframe, int iFrameWidth, int iFrameHeight, int iFps, int iCacheSize, int iInitialLoadedFrameSize = 100);
 	void setVideoName(QString videoName);
+
+signals:
+	void videoLoaded(bool success);
 
 //// For Editor /////////////////////////////////////////////////////////
 // write back to m_mCurrentLink ?
@@ -192,12 +193,15 @@ public:
 
 	void freeLinkSystemMemory();
 	void clearLinksList();
-	void clearFastLinksList();
+	void clearFullMap();
+	void clearFastMap();
+
 	void setCurrentLink();
 	void updateCurrentLink();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+
 	void enableJump()
 	{
 		m_bEnableJump = true;
@@ -225,8 +229,6 @@ public:
 	{
 		return m_bIsPaintRect;
 	}
-
-
 
 //// END OF HyperLink//////////////////////////////////////////////////////////
 

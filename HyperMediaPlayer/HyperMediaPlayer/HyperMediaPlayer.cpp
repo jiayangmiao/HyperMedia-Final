@@ -51,7 +51,7 @@ HyperMediaPlayer::HyperMediaPlayer(int iNum, int iWidth, int iHeight,int iFps, Q
 
 void HyperMediaPlayer::initialFrame()
 {
-	connect(ui.widget, SIGNAL(canEnablePlayerUI(bool)), this, SLOT(enablePlayerUI(bool)));
+	connect(ui.widget, SIGNAL(videoLoaded(bool)), this, SLOT(enablePlayerUI(bool)));
 	connect(ui.widget, SIGNAL(currentFrameUpdated(int)), ui.horizontalSlider, SLOT(setValue(int)));
 	connect(ui.widget, SIGNAL(currentFrameUpdated(int)), this, SLOT(updateTime(int)));
 
@@ -62,14 +62,6 @@ void HyperMediaPlayer::initialFrame()
 	ui.widget->Init();
 	ui.widget->enableJump();
 	ui.widget->disableEditRect();
-
-	//ui.widget->initMemory();
-	//ui.widget->LoadAllFrame();
-
-	//frame->setGeometry(0,0,ui.widget->size().width(), ui.widget->size().height());
-	//QHBoxLayout* layout = new QHBoxLayout();
-	//layout->addWidget(frame);
-	//ui.verticalLayout->addLayout(layout);
 
 	connect(ui.pushButton, SIGNAL(clicked()), ui.widget, SLOT(PlayOrPause()));
 	connect(ui.pushButton_2, SIGNAL(clicked()), ui.widget, SLOT(Stop()));

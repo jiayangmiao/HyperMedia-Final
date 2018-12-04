@@ -78,7 +78,6 @@ void Frame::LoadVideo(int startFrame)
 	m_FrameCacheMap.clear();
 	_clear();
 	disablePaintRect();
-	freeLinkSystemMemory();
 	loadMetaData();
 	m_bAudioLoaded = false;
 	enablePaintRect();
@@ -98,7 +97,7 @@ void Frame::LoadVideo(int startFrame)
 	qDebug() << "current Frame: " << m_iCurrentFrame;
 	emit currentFrameUpdated(m_iCurrentFrame);
 	qDebug() << "LoadVideo Finished";
-	emit canEnablePlayerUI(true);
+	emit videoLoaded(true);
 }
 
 Frame::~Frame()
@@ -1330,6 +1329,8 @@ void Frame::updateCurrentLink()
 
 void Frame::loadMetaData()
 {
+	// First things first, remove everything
+	freeLinkSystemMemory();
 	try {
 		std::string sFullFilePath = m_sRootFolder + "\\" + m_sVideoName + m_sMetaDataSuffix;
 		rapidxml::file<> metadataFile(sFullFilePath.data());
@@ -1352,12 +1353,22 @@ void Frame::loadMetaData()
 	}
 }
 
-// Generate the full map and fast map from zero
+// Design on the fullmap and fastmap:
+// The list of links itself is a dynamically allocated list of links. 
+// whose content should not be updated unless its being saved in editor
+// However fullmap is just a map from frame number (int) to pointers of links 
+// and fastmap similarily is a map from frame number (int) to pointer of fastlinks
+// Both of which can be cleared
+
+// Generate the full map and fast map from given listOfLinks
+// in loadMetaData it is called with freshly generated links list read from the file
+// in other case (used for updating the previews in the editor after some operations
+// The generateListAndMaps should receive a updated deep-copied list from outside
+// generated with the copy constructor.
 void Frame::generateListAndMaps(std::list<HyperMediaLink *> listOfLinks)
 {
-	clearFastLinksList();
-	this->fullMap.clear();
-	this->fastMap.clear();
+	clearFullMap();
+	clearFastMap();
 
 	// Second pass
 	std::list<HyperMediaLink *>::iterator it;
@@ -1368,8 +1379,6 @@ void Frame::generateListAndMaps(std::list<HyperMediaLink *> listOfLinks)
 			std::map<int, std::list<HyperMediaLink *>>::iterator itmap = fullMap.find(i);
 			if (itmap != fullMap.end())
 			{ // Found it
-			  //std::list<HyperMediaLink *> thisList = itmap->second;
-			  //thisList.push_back(*it);
 				fullMap.at(i).push_back(*it);
 			}
 			else {
@@ -1428,7 +1437,8 @@ void Frame::freeLinkSystemMemory()
 	qDebug() << "\n HyperLinkForFrame Free";
 
 	clearLinksList();
-	clearFastLinksList();
+	clearFullMap();
+	clearFastMap();
 }
 
 void Frame::clearLinksList()
@@ -1439,11 +1449,16 @@ void Frame::clearLinksList()
 		delete temp;
 		links.pop_back();
 	}
-	fullMap.clear();//!!!!! don't forget
-	qDebug() << "\n HyperMediaLinks Free";
+	qDebug() << "\n List of Links Freed";
 }
 
-void Frame::clearFastLinksList()
+void Frame::clearFullMap()
+{
+	fullMap.clear();
+	qDebug() << "\n Full Map Freed";
+}
+
+void Frame::clearFastMap()
 {
 	while (!fastLinks.empty())
 	{
@@ -1452,5 +1467,5 @@ void Frame::clearFastLinksList()
 		fastLinks.pop_back();
 	}
 	fastMap.clear();//!!!!! don't forget
-	qDebug() << "\n HyperMediaLinkFast Free";
+	qDebug() << "\n Fast Link Map Freed";
 }

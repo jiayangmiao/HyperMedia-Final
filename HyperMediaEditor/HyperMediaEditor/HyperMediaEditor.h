@@ -3,8 +3,10 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QFileDialog>
+#include <QString>
 #include <QProxyStyle>
 #include <QPushButton>
+#include <QMessageBox>
 #include "ui_HyperMediaEditor.h"
 #include "../../Classes/Frame.h"
 #include "../../Classes/HyperMediaLink.h"
@@ -17,29 +19,38 @@ class HyperMediaEditor : public QMainWindow
 public:
 	HyperMediaEditor(QWidget *parent = 0);
 	~HyperMediaEditor();
-
+	
+	// Constants for readability
 	const int m_iFrameNum = 9000;
 	const int m_iWidth = 352;
 	const int m_iHeight = 288;
 	const int m_iFps = 30;
 
-	// Link Editing
-	// Constants for readability
 	const int defaultOriginStartFrame = 1;
 	const int defaultOriginEndFrame = 9000;
 	const int defaultTargetFrame = 1;
 
 	// Variables for temporary link (being edited)
+	bool originIsLoaded = false;
+	bool originStartFrameIsChosen = false;
+	bool originEndFrameIsChosen = false;
+	bool targetIsLoaded = false;
+	bool targetFrameIsChosen = false;
+
+	std::list<HyperMediaLink *> tempLinks;
+	
 	std::string chosenLinkName;
 	std::string desiredLinkName;
+	std::string chosenOriginFilename;
 	std::string chosenTargetFilename;
-	int chosenTargetFrame;
-	int chosenStartFrame;
-	int chosenEndFrame;
-	int chosenX;
-	int chosenY;
-	int chosenWidth;
-	int chosenHeight;
+
+	int chosenTargetFrame = 1;
+	int chosenStartFrame = 1;
+	int chosenEndFrame = 9000;
+	int chosenX = 0;
+	int chosenY = 0;
+	int chosenWidth = 0;
+	int chosenHeight = 0;
 
 	HyperMediaLink *temporaryLink;
 
@@ -54,6 +65,16 @@ private:
 	void initialFrames();
 	void initialOriginFrame();
 	void initialTargetFrame();
+
+	void clearTempLinks();
+	void loadTempLinkFromFrame();
+	void setupComboBoxFromTemp();
+	HyperMediaLink * tempLinkWithName(std::string name);
+
+	void resetTempVariables();
+
+	void addLink(HyperMediaLink *newLink);
+	void removeLink(std::string linkName);
 
 signals:
 
@@ -104,6 +125,15 @@ public slots:
 		ui.targetStopButton->setEnabled(enable);
 	}
 
+	void enableLinkOperationUI(bool enable)
+	{
+		ui.selectLinkComboBox->setEnabled(enable);
+		ui.linkNameLineEdit->setEnabled(enable);
+		ui.saveFileButton->setEnabled(enable);
+		ui.setLinkButton->setEnabled(enable);
+		ui.removeLinkButton->setEnabled(enable);
+	}
+
 	void playTappedOnOrigin()
 	{
 		ui.rightWidget->framePause();
@@ -114,6 +144,72 @@ public slots:
 	{
 		ui.leftWidget->framePause();
 		ui.rightWidget->PlayOrPause();
+	}
+
+	void updateOriginVideoInfo()
+	{
+		resetTempVariables();
+
+		enableOriginPlayerUI(true);
+		enableLinkOperationUI(true);
+		originIsLoaded = true;
+		chosenOriginFilename = ui.leftWidget->m_sVideoName;
+		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
+		loadTempLinkFromFrame();
+	}
+
+	void updateTargetVideoInfo()
+	{
+		enableTargetPlayerUI(true);
+		targetIsLoaded = true;
+		chosenTargetFilename = ui.rightWidget->m_sVideoName;
+		std::cout << "Target: " << ui.rightWidget->m_sVideoName << endl;
+	}
+
+	void needToLoadVideo()
+	{
+		// if UI leftwidget filename (from path) is same to whats in the widget now, dont let it load.
+
+		ui.selectLinkComboBox->setCurrentIndex(0);
+		clearTempLinks();
+		ui.leftWidget->LoadVideo();
+	}
+
+	void chosenLinkChanged(const QString &text)
+	{
+		if ((text.compare("- No Links -") == 0) || (text.compare("- Select Link -") == 0)) {
+			return;
+		}
+		else {
+			std::string name = text.toStdString();
+			HyperMediaLink *chosenLink = tempLinkWithName(name);
+			if (chosenLink != NULL) { // Sometimes it fucks up so protecting
+				ui.leftWidget->Stop();
+				ui.leftWidget->setCurrentFrame(chosenLink->startFrame);
+				ui.linkNameLineEdit->setText(text);
+				chosenLinkName = name;
+				std::cout << "Selected link name: " << chosenLinkName << endl;
+			}
+		}
+	}
+
+	void setLinkButtonTapped()
+	{
+
+	}
+
+	void removeLinkButtonTapped()
+	{
+		if (ui.linkNameLineEdit->text().size() == 0) {
+			QMessageBox::warning(this, "Error", "No link name provided. Please pick from the menu on the left or type in manually.");
+		}
+		else if (tempLinkWithName(ui.linkNameLineEdit->text().toStdString()) == NULL) {
+			QMessageBox::warning(this, "Error", "Cannot find link with provided name.");
+		}
+		else {
+			// Link does exist!
+
+		}
 	}
 };
 
