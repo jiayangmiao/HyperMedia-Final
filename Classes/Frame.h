@@ -129,9 +129,22 @@ public:
 		return m_bEnableEditRect;
 	}
 
+	bool isCloseTo(int a, int b)
+	{
+		if (abs(a - b) <= 5)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	std::pair<int, QRect> m_mRectBeingEdited;
 	bool m_bEditStartPointSet = false;
 	bool m_bEditEndPointSet = false;
+	bool m_bRectSelected = false;
 
 public slots:
 	void resetRectBeingEdited()
@@ -139,6 +152,7 @@ public slots:
 		m_mRectBeingEdited.first = -1;
 		m_bEditStartPointSet = false;
 		m_bEditEndPointSet = false;
+		m_bRectSelected = false;
 		m_mRectBeingEdited.second.setWidth(0);
 		m_mRectBeingEdited.second.setHeight(0);
 		m_mRectBeingEdited.second.setX(0);
