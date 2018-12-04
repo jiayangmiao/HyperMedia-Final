@@ -87,6 +87,7 @@ public:
 	QList<QFileInfo> fileList;
 	QDir dirPath;
 	std::string m_sVideoName;
+	std::string m_sVideoName_old;
 	DWORD ** pFrames;
 	DWORD * pFrame;
 	std::string m_sRootFolder = "";// "D:\\Downloads\\London\\London\\LondonOne\\LondonOne";
@@ -456,6 +457,8 @@ public slots:
 	}
 
 	void setRootFolder(QString rootFolderName); 
+	void setRootFolderForEditor(QString rootFolderName);
 
 	void LoadVideo(int startFrame = -1);
+	void reloadVideo();
 };

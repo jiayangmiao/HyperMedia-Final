@@ -68,6 +68,7 @@ void Frame::Init()
 
 void Frame::LoadVideo(int startFrame)
 {
+	m_sVideoName_old = m_sVideoName;
 	if (m_bIsStopped == false)
 	{
 		QMessageBox::StandardButton reply;
@@ -97,6 +98,14 @@ void Frame::LoadVideo(int startFrame)
 	qDebug() << "current Frame: " << m_iCurrentFrame;
 	emit currentFrameUpdated(m_iCurrentFrame);
 	qDebug() << "LoadVideo Finished";
+	emit videoLoaded(true);
+}
+
+
+void Frame::reloadVideo()
+{
+	m_sVideoName_old = m_sVideoName;
+	loadMetaData();
 	emit videoLoaded(true);
 }
 
@@ -701,6 +710,13 @@ void Frame::setRootFolder(QString rootFolderPath)
 	printf(" rootfolder: %s, VideoName: %s\n", m_sRootFolder.data(), m_sVideoName.data());
 
 	//emit rootFolderIsSet();
+}
+
+void Frame::setRootFolderForEditor(QString rootFolderPath)
+{
+	m_sVideoName_old = m_sVideoName;
+	
+	setRootFolder(rootFolderPath);
 }
 
 void Frame::setVideoName(QString videoName )

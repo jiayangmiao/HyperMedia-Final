@@ -36,6 +36,7 @@ public:
 	bool originStartFrameIsChosen = false;
 	bool originEndFrameIsChosen = false;
 	bool targetFrameIsChosen = false;
+	bool linkHasBeenEdited = false;
 
 	std::list<HyperMediaLink *> tempLinks;
 	
@@ -225,6 +226,7 @@ public slots:
 	void updateOriginVideoInfo()
 	{
 		originIsLoaded = true;
+		linkHasBeenEdited = false;
 
 		chosenOriginFilename = ui.leftWidget->m_sVideoName;
 		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
@@ -255,11 +257,26 @@ public slots:
 
 	void needToLoadVideo()
 	{
-		// if UI leftwidget filename (from path) is same to whats in the widget now, dont let it load.
-
-		ui.selectLinkComboBox->setCurrentIndex(0);
 		clearTempLinks();
-		ui.leftWidget->LoadVideo();
+		ui.selectLinkComboBox->setCurrentIndex(0);
+
+		// if UI leftwidget filename (from path) is same to whats in the widget now, dont let it load.
+		std::string currentFileName = ui.leftWidget->m_sVideoName_old;
+
+		std::string designatedPath = ui.originPathLineEdit->text().toStdString();
+		std::size_t found = designatedPath.find_last_of("/\\");
+		std::string designatedFileName = designatedPath.substr(found + 1);
+
+		std::cout << "current file name: " << currentFileName << " Designated file name: " << designatedFileName << endl;
+		
+		if (currentFileName.compare(designatedFileName) == 0)
+		{
+			std::cout << "its the same video" << endl;
+			ui.leftWidget->reloadVideo();
+		}
+		else {
+			ui.leftWidget->LoadVideo();
+		}
 	}
 
 	void chosenLinkChanged(const QString &text)

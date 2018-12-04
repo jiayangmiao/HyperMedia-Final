@@ -61,7 +61,7 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(ui.leftWidget, SIGNAL(currentFrameUpdated(int)), ui.leftSlider, SLOT(setValue(int)));
 	connect(ui.leftWidget, SIGNAL(currentFrameUpdated(int)), this, SLOT(updateOriginTime(int)));
 
-	connect(ui.originPathLineEdit, SIGNAL(textChanged(QString)), ui.leftWidget, SLOT(setRootFolder(QString)));
+	connect(ui.originPathLineEdit, SIGNAL(textChanged(QString)), ui.leftWidget, SLOT(setRootFolderForEditor(QString)));
 	connect(ui.originLoadButton, SIGNAL(clicked()), this, SLOT(needToLoadVideo()));
 
 	ui.leftWidget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
@@ -195,11 +195,13 @@ HyperMediaLink * HyperMediaEditor::tempLinkWithName(std::string name)
 
 void HyperMediaEditor::addLinkToTemp(HyperMediaLink *newLink)
 {
-
+	linkHasBeenEdited = true;
 }
 
 void HyperMediaEditor::removeLinkFromTemp(std::string name)
 {
+	linkHasBeenEdited = true;
+
 	std::cout << "Temp link now size " << tempLinks.size() << endl;
 
 	std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
@@ -217,7 +219,7 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 	std::cout << "Temp link now size " << tempLinks.size() << endl;
 }
 
-void HyperMediaEditor::resetTempVariables()
+void HyperMediaEditor::resetAllTempVariables()
 {
 	chosenLinkName = "";
 	resetOriginTempVariables();
