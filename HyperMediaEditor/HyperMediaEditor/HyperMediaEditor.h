@@ -74,6 +74,8 @@ private:
 	HyperMediaLink * tempLinkWithName(std::string name);
 
 	void resetTempVariables();
+	void resetOriginTempVariables();
+	void resetTargetTempVariables();
 
 	void addLinkToTemp(HyperMediaLink *newLink);
 	void removeLinkFromTemp(std::string linkName);
@@ -155,23 +157,34 @@ public slots:
 
 	void setStartFrameButtonTapped()
 	{
-		// Get and set the frame value
-		originStartFrameIsChosen = true;
-		chosenStartFrame = ui.leftWidget->m_iCurrentFrame;
-		enableOriginJumpToStartButton(true);
-
-		std::cout << "Chosen start frame: " << chosenStartFrame << endl;
+		// CHECK START < END
+		int desiredStartFrame = ui.leftWidget->m_iCurrentFrame;
+		if (desiredStartFrame >= chosenEndFrame) {
+			QMessageBox::warning(this, "Error", "You cannot set the start frame to after the end frame.");
+			ui.leftWidget->setCurrentFrame(chosenStartFrame);
+		}
+		else {
+			originStartFrameIsChosen = true;
+			chosenStartFrame = desiredStartFrame;
+			enableOriginJumpToStartButton(true);
+		}
+		ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
 	}
 
 	void setEndFrameButtonTapped()
 	{
-		// Get and set the frame value
-		originEndFrameIsChosen = true;
-		chosenEndFrame = ui.leftWidget->m_iCurrentFrame;
-		enableOriginJumpToEndButton(true);
-
-		std::cout << "Chosen end frame: " << chosenEndFrame << endl;
-
+		// CHECK END > START
+		int desiredEndFrame = ui.leftWidget->m_iCurrentFrame;
+		if (desiredEndFrame <= chosenStartFrame) {
+			QMessageBox::warning(this, "Error", "You cannot set the end frame to before the start frame.");
+			ui.leftWidget->setCurrentFrame(chosenEndFrame);
+		}
+		else {
+			originEndFrameIsChosen = true;
+			chosenEndFrame = desiredEndFrame;
+			enableOriginJumpToEndButton(true);
+		}
+		ui.originSelectedEndTimeLabel->setText(frame2time(chosenEndFrame, ui.originSelectedEndTimeLabel->text()));
 	}
 
 	void setTargetFrameButtonTapped()
@@ -180,8 +193,23 @@ public slots:
 		targetFrameIsChosen = true;
 		chosenTargetFrame = ui.rightWidget->m_iCurrentFrame;
 		enableTargetJumpButton(true);
+		ui.targetSelectedTimeLabel->setText(frame2time(chosenTargetFrame, ui.targetSelectedTimeLabel->text()));
+	}
 
-		std::cout << "Chosen target frame: " << chosenTargetFrame << endl;
+	void originJumpToStartTapped()
+	{
+		ui.leftWidget->setCurrentFrame(chosenStartFrame);
+	}
+
+	void originJumpToEndTapped()
+	{
+		ui.leftWidget->setCurrentFrame(chosenEndFrame);
+
+	}
+
+	void targetJumpToTargetTapped()
+	{
+		ui.rightWidget->setCurrentFrame(chosenTargetFrame);
 	}
 
 	void playTappedOnOrigin()
@@ -198,24 +226,33 @@ public slots:
 
 	void updateOriginVideoInfo()
 	{
-		resetTempVariables();
-		enableOriginPlayerUI(true);
-		enableLinkOperationUI(true);
 		originIsLoaded = true;
-		updateRectUI();
+
 		chosenOriginFilename = ui.leftWidget->m_sVideoName;
 		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
-		resetTempVariables();
+
+		resetOriginTempVariables();
+		ui.leftWidget->setCurrentFrame(chosenStartFrame);
+
+		enableOriginPlayerUI(true);
+		enableLinkOperationUI(true);
+		updateRectUI();
+
 		loadTempLinkFromFrame();
 	}
 
 	void updateTargetVideoInfo()
 	{
-		enableTargetPlayerUI(true);
 		targetIsLoaded = true;
-		updateRectUI();
+
 		chosenTargetFilename = ui.rightWidget->m_sVideoName;
 		std::cout << "Target: " << ui.rightWidget->m_sVideoName << endl;
+
+		resetTargetTempVariables();
+		ui.rightWidget->setCurrentFrame(chosenTargetFrame);
+
+		enableTargetPlayerUI(true);
+		updateRectUI();
 	}
 
 	void needToLoadVideo()

@@ -78,6 +78,8 @@ void HyperMediaEditor::initialOriginFrame()
 	// Signal for setting origin start and end frames
 	connect(ui.originSetStartTimeButton, SIGNAL(clicked()), this, SLOT(setStartFrameButtonTapped()));
 	connect(ui.originSetEndTimeButton, SIGNAL(clicked()), this, SLOT(setEndFrameButtonTapped()));
+	connect(ui.originJumpToStartButton, SIGNAL(clicked()), this, SLOT(originJumpToStartTapped()));
+	connect(ui.originJumpToEndButton, SIGNAL(clicked()), this, SLOT(originJumpToEndTapped()));
 
 	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
 
@@ -106,6 +108,7 @@ void HyperMediaEditor::initialTargetFrame()
 
 	// Signal for setting target frame
 	connect(ui.targetSetTimeButton, SIGNAL(clicked()), this, SLOT(setTargetFrameButtonTapped()));
+	connect(ui.targetJumpToTargetButton, SIGNAL(clicked()), this, SLOT(targetJumpToTargetTapped()));
 
 }
 
@@ -219,23 +222,33 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 
 void HyperMediaEditor::resetTempVariables()
 {
+	chosenLinkName = "";
+	resetOriginTempVariables();
+	resetTargetTempVariables();
+}
+
+void HyperMediaEditor::resetOriginTempVariables()
+{
 	originStartFrameIsChosen = false;
 	originEndFrameIsChosen = false;
-	targetFrameIsChosen = false;
-
-	enableOriginJumpToStartButton(false);
-	enableOriginJumpToEndButton(false);
-	enableTargetJumpButton(false);
-
-	chosenLinkName = "";
-
-	chosenTargetFrame = 1;
 	chosenStartFrame = 1;
 	chosenEndFrame = 9000;
 	chosenX = 0;
 	chosenY = 0;
 	chosenWidth = 0;
 	chosenHeight = 0;
+	enableOriginJumpToStartButton(false);
+	enableOriginJumpToEndButton(false);
+	ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
+	ui.originSelectedEndTimeLabel->setText(frame2time(chosenEndFrame, ui.originSelectedEndTimeLabel->text()));
+}
+
+void HyperMediaEditor::resetTargetTempVariables()
+{
+	targetFrameIsChosen = false;
+	chosenTargetFrame = 1;
+	enableTargetJumpButton(false);
+	ui.targetSelectedTimeLabel->setText(frame2time(chosenTargetFrame, ui.targetSelectedTimeLabel->text()));
 }
 
 void HyperMediaEditor::saveTempLinksIntoFile()
