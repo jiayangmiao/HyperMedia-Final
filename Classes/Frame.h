@@ -287,7 +287,7 @@ signals:
 public slots:
 	void signal()
 	{
-		qDebug() << "run "  << endl;
+		qDebug() << "run "  << "\n";
 	}
 
 	void signal2()

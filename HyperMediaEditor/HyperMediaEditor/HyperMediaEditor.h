@@ -104,7 +104,7 @@ public slots:
 	void jumpToAnotherFrame(std::string targetVideoName, int targetFrame)
 	{
 		ui.rightWidget->Stop();
-		std::cout << ui.leftWidget->m_sRootFolder << endl;
+		std::cout << ui.leftWidget->m_sRootFolder << "\n";
 		std::size_t found = ui.leftWidget->m_sRootFolder.find_last_of("/\\");
 		std::string parentDirectory = ui.leftWidget->m_sRootFolder.substr(0, found);
 		parentDirectory = parentDirectory.append("/");
@@ -231,7 +231,7 @@ public slots:
 		linkHasBeenEdited = false;
 
 		chosenOriginFilename = ui.leftWidget->m_sVideoName;
-		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << endl;
+		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << "\n";
 
 		resetOriginTempVariables();
 		ui.leftWidget->setCurrentFrame(chosenStartFrame);
@@ -248,7 +248,7 @@ public slots:
 		targetIsLoaded = true;
 
 		chosenTargetFilename = ui.rightWidget->m_sVideoName;
-		std::cout << "Target: " << ui.rightWidget->m_sVideoName << endl;
+		std::cout << "Target: " << ui.rightWidget->m_sVideoName << "\n";
 
 		resetTargetTempVariables();
 		ui.rightWidget->setCurrentFrame(chosenTargetFrame);
@@ -269,11 +269,11 @@ public slots:
 		std::size_t found = designatedPath.find_last_of("/\\");
 		std::string designatedFileName = designatedPath.substr(found + 1);
 
-		std::cout << "current file name: " << currentFileName << " Designated file name: " << designatedFileName << endl;
+		std::cout << "current file name: " << currentFileName << " Designated file name: " << designatedFileName << "\n";
 		
 		if (currentFileName.compare(designatedFileName) == 0)
 		{
-			std::cout << "its the same video" << endl;
+			std::cout << "its the same video" << "\n";
 			ui.leftWidget->reloadVideo();
 		}
 		else {
@@ -294,7 +294,7 @@ public slots:
 				ui.leftWidget->setCurrentFrame(chosenLink->startFrame);
 				ui.linkNameLineEdit->setText(text);
 				chosenLinkName = name;
-				std::cout << "Selected link name: " << chosenLinkName << endl;
+				std::cout << "Selected link name: " << chosenLinkName << "\n";
 			}
 		}
 	}

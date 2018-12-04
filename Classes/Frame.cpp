@@ -230,7 +230,7 @@ void Frame::LoadFrame( int iFrameNum )
 	if ((pf = fopen(sFullFilePath.data(), "rb")) == NULL)
 	{
 		printf("File coulkd not be opened ");
-		qDebug() << sFullFilePath.data() << endl;
+		qDebug() << sFullFilePath.data() << "\n";
 		return;
 	}
 
@@ -1157,7 +1157,7 @@ int Frame::_loadFrame(int iCurrentFrameNum, int iTargetBlock)
 	if ((pf = fopen(sFullFilePath.data(), "rb")) == NULL)
 	{
 		printf("File coulkd not be opened ");
-		qDebug() << sFullFilePath.data() << endl;
+		qDebug() << sFullFilePath.data() << "\n";
 		return -1;
 	}
 
