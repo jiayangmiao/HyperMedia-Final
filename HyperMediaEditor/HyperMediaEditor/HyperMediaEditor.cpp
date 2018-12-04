@@ -154,7 +154,7 @@ void HyperMediaEditor::enableRectUI(bool enable)
 
 void HyperMediaEditor::setupComboBoxFromTemp()
 {
-	std::cout << "Temp link size " << tempLinks.size() << endl;
+	std::cout << "Temp link size " << tempLinks.size() << "\n";
 
 	// Clear all combo box items
 	for (int i = ui.selectLinkComboBox->count() - 1; i >= 0; i--) {
@@ -205,13 +205,13 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 {
 	linkHasBeenEdited = true;
 
-	std::cout << "Temp link now size " << tempLinks.size() << endl;
+	std::cout << "Temp link now size " << tempLinks.size() << "\n";
 
 	std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
 	while (it != tempLinks.end())
 	{
 		if ((*it)->linkName.compare(name) == 0) {
-			std::cout << "Erasing link with " << (*it)->linkName << endl;
+			std::cout << "Erasing link with " << (*it)->linkName << "\n";
 			it = tempLinks.erase(it);
 		}
 		else
@@ -219,7 +219,7 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 			++it;
 		}
 	}
-	std::cout << "Temp link now size " << tempLinks.size() << endl;
+	std::cout << "Temp link now size " << tempLinks.size() << "\n";
 }
 
 void HyperMediaEditor::resetAllTempVariables()
@@ -255,7 +255,9 @@ void HyperMediaEditor::resetTargetTempVariables()
 
 void HyperMediaEditor::saveTempLinksIntoFile()
 {
-	std::cout << "save requested" << endl;
+	std::cout << "Save requested" << "\n";
+	std::string filename = ui.leftWidget->m_sRootFolder.append("/").append(ui.leftWidget->m_sVideoName).append(".xml");
+	std::cout << filename << "\n";
 	// If temp link is still empty
 
 	// Loop through the temp link list
