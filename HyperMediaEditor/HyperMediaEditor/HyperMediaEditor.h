@@ -32,9 +32,9 @@ public:
 
 	// Variables for temporary link (being edited)
 	bool originIsLoaded = false;
+	bool targetIsLoaded = false;
 	bool originStartFrameIsChosen = false;
 	bool originEndFrameIsChosen = false;
-	bool targetIsLoaded = false;
 	bool targetFrameIsChosen = false;
 
 	std::list<HyperMediaLink *> tempLinks;
@@ -115,20 +115,31 @@ public slots:
 	void enableOriginPlayerUI(bool enable)
 	{
 		ui.originSetStartTimeButton->setEnabled(enable);
-		ui.originJumpToStartButton->setEnabled(enable);
-		ui.selectArea->setEnabled(enable);
 		ui.originSetEndTimeButton->setEnabled(enable);
-		ui.originJumpToEndButton->setEnabled(enable);
 		ui.originPlayButton->setEnabled(enable);
 		ui.originStopButton->setEnabled(enable);
 	}
 
+	void enableOriginJumpToStartButton(bool enable)
+	{
+		ui.originJumpToStartButton->setEnabled(enable);
+	}
+
+	void enableOriginJumpToEndButton(bool enable)
+	{
+		ui.originJumpToEndButton->setEnabled(enable);
+	}
+	
 	void enableTargetPlayerUI(bool enable)
 	{
 		ui.targetSetTimeButton->setEnabled(enable);
-		ui.targetJumpToTargetButton->setEnabled(enable);
 		ui.targetPlayButton->setEnabled(enable);
 		ui.targetStopButton->setEnabled(enable);
+	}
+
+	void enableTargetJumpButton(bool enable)
+	{
+		ui.targetJumpToTargetButton->setEnabled(enable);
 	}
 
 	void enableLinkOperationUI(bool enable)
@@ -138,6 +149,37 @@ public slots:
 		ui.saveFileButton->setEnabled(enable);
 		ui.setLinkButton->setEnabled(enable);
 		ui.removeLinkButton->setEnabled(enable);
+	}
+
+	void setStartFrameButtonTapped()
+	{
+		// Get and set the frame value
+		originStartFrameIsChosen = true;
+		chosenStartFrame = ui.leftWidget->m_iCurrentFrame;
+		enableOriginJumpToStartButton(true);
+
+		std::cout << "Chosen start frame: " << chosenStartFrame << endl;
+	}
+
+	void setEndFrameButtonTapped()
+	{
+		// Get and set the frame value
+		originEndFrameIsChosen = true;
+		chosenEndFrame = ui.leftWidget->m_iCurrentFrame;
+		enableOriginJumpToEndButton(true);
+
+		std::cout << "Chosen end frame: " << chosenEndFrame << endl;
+
+	}
+
+	void setTargetFrameButtonTapped()
+	{
+		// Get and set the frame value
+		targetFrameIsChosen = true;
+		chosenTargetFrame = ui.rightWidget->m_iCurrentFrame;
+		enableTargetJumpButton(true);
+
+		std::cout << "Chosen target frame: " << chosenTargetFrame << endl;
 	}
 
 	void playTappedOnOrigin()
@@ -199,6 +241,18 @@ public slots:
 				std::cout << "Selected link name: " << chosenLinkName << endl;
 			}
 		}
+	}
+
+	void selectAreaButtonTapped()
+	{
+		
+		/*
+		if !originStartFrameIsChosen warning
+		if !originEndFrameIsChosen warning
+		if !targetFrameIsChosen warning
+
+		ui.leftWidget->
+		*/
 	}
 
 	void setLinkButtonTapped()

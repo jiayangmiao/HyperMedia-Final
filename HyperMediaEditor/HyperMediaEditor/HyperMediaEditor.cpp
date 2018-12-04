@@ -1,5 +1,11 @@
 #include "HyperMediaEditor.h"
 #include <qstandarditemmodel.h>
+#include "../../Library/rapidxml/rapidxml.hpp"
+#include "../../Library/rapidxml/rapidxml_iterators.hpp"
+#include "../../Library/rapidxml/rapidxml_print.hpp"
+#include "../../Library/rapidxml/rapidxml_utils.hpp"
+#include <iostream>
+#include <stdio.h>
 
 HyperMediaEditor::HyperMediaEditor(QWidget *parent)
 	: QMainWindow(parent)
@@ -41,6 +47,9 @@ void HyperMediaEditor::initialFrames()
 {
 	enableOriginPlayerUI(false);
 	enableTargetPlayerUI(false);
+	enableOriginJumpToStartButton(false);
+	enableOriginJumpToEndButton(false);
+	enableTargetJumpButton(false);
 	initialOriginFrame();
 	initialTargetFrame();
 }
@@ -67,7 +76,10 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(ui.leftWidget , SIGNAL(requestJump(std::string, int)), this, SLOT(jumpToAnotherFrame(std::string, int)));
 
 	// Signal for setting origin start and end frames
+	connect(ui.originSetStartTimeButton, SIGNAL(clicked()), this, SLOT(setStartFrameButtonTapped()));
+	connect(ui.originSetEndTimeButton, SIGNAL(clicked()), this, SLOT(setEndFrameButtonTapped()));
 
+	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
 }
 
 void HyperMediaEditor::initialTargetFrame()
@@ -90,6 +102,7 @@ void HyperMediaEditor::initialTargetFrame()
 	connect(ui.rightSlider, SIGNAL(valueChanged(int)), ui.rightWidget, SLOT(setCurrentFrame(int)));
 
 	// Signal for setting target frame
+	connect(ui.targetSetTimeButton, SIGNAL(clicked()), this, SLOT(setTargetFrameButtonTapped()));
 
 }
 
@@ -130,7 +143,7 @@ void HyperMediaEditor::updateRectUI() {
 void HyperMediaEditor::enableRectUI(bool enable)
 {
 	// Add code to enable/disable rect selection UI here
-
+	ui.selectArea->setEnabled(enable);
 }
 
 void HyperMediaEditor::setupComboBoxFromTemp()
@@ -207,6 +220,10 @@ void HyperMediaEditor::resetTempVariables()
 	originEndFrameIsChosen = false;
 	targetFrameIsChosen = false;
 
+	enableOriginJumpToStartButton(false);
+	enableOriginJumpToEndButton(false);
+	enableTargetJumpButton(false);
+
 	chosenLinkName = "";
 
 	chosenTargetFrame = 1;
@@ -221,6 +238,47 @@ void HyperMediaEditor::resetTempVariables()
 void HyperMediaEditor::saveTempLinksIntoFile()
 {
 	std::cout << "save requested" << endl;
+	// If temp link is still empty
+
+	// Loop through the temp link list
+
+	// If link name == templink
+	/*
+	std::ofstream theFile("trial.xml");
+	xml_document<> doc;
+	xml_node<>* decl = doc.allocate_node(node_declaration);
+	decl->append_attribute(doc.allocate_attribute("version", "1.0"));
+	decl->append_attribute(doc.allocate_attribute("encoding", "UTF-8"));
+	doc.append_node(decl);
+	xml_node<>* root = doc.allocate_node(node_element, "page");
+	root->append_attribute(doc.allocate_attribute("xmlns", "http://ALTEC-Center.org/xsd/ocr-annotation-1-0.xsd"));
+	root->append_attribute(doc.allocate_attribute("Number of lines", "10"));
+	doc.append_node(root);
+	for (int i = 0; i < 8; i++)
+	{
+		//char  buf1[8];
+		//std::sprintf(buf1, "%d", i);
+		xml_node<>* child = doc.allocate_node(node_element, "line");
+		child->append_attribute(doc.allocate_attribute("Index", std::to_string(i).c_str()));
+		root->append_node(child);
+
+		for (int j = 0; j < 8; j++)
+		{
+			xml_node<>* child1 = doc.allocate_node(node_element, "word");
+			child1->append_attribute(doc.allocate_attribute("Index", std::to_string(j).c_str()));
+			child1->append_attribute(doc.allocate_attribute("x", "0.0"));
+			child1->append_attribute(doc.allocate_attribute("y", "0.1"));
+			child1->append_attribute(doc.allocate_attribute("width", "0.2"));
+			child1->append_attribute(doc.allocate_attribute("hight", "0.3"));
+			child1->append_attribute(doc.allocate_attribute("word", ""));
+			child->append_node(child1);
+		}
+	}
+	theFile << doc;
+	theFile.close();
+	doc.clear();
+
+	*/
 }
 
 HyperMediaEditor::~HyperMediaEditor()
