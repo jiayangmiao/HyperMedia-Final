@@ -336,17 +336,20 @@ void Frame::mouseMoveEvent(QMouseEvent * event)
 	std::map<std::string, HyperLinkForFrame *> selectedLink;
 	if (isPaintRect())
 	{
-		std::map<std::string, HyperLinkForFrame *>::iterator it;
-		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-			//std::cout << it->first << " | ";
-			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-			int Width = ((it->second)->width * m_dImageScalor_x);
-			int Height = ((it->second)->height * m_dImageScalor_y);
-			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
-			{
-				selectedLink[it->first] = it->second;
-				setCursor(Qt::OpenHandCursor);
+		if(Qt::RightButton == event->button())
+		{
+			std::map<std::string, HyperLinkForFrame *>::iterator it;
+			for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+				//std::cout << it->first << " | ";
+				int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+				int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+				int Width = ((it->second)->width * m_dImageScalor_x);
+				int Height = ((it->second)->height * m_dImageScalor_y);
+				if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+				{
+					selectedLink[it->first] = it->second;
+					setCursor(Qt::OpenHandCursor);
+				}
 			}
 		}
 	}
@@ -448,18 +451,21 @@ void Frame::mousePressEvent(QMouseEvent *event)
 
 	if (isPaintRect())
 	{
-		std::map<std::string, HyperLinkForFrame *> selectedLink;
-		std::map<std::string, HyperLinkForFrame *>::iterator it;
-		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-			//std::cout << it->first << " | ";
-			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-			int Width = ((it->second)->width * m_dImageScalor_x);
-			int Height = ((it->second)->height * m_dImageScalor_y);
-			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
-			{
-				selectedLink[it->first] = it->second;
-				setCursor(Qt::ClosedHandCursor);
+		if (Qt::RightButton == event->button())
+		{
+			std::map<std::string, HyperLinkForFrame *> selectedLink;
+			std::map<std::string, HyperLinkForFrame *>::iterator it;
+			for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+				//std::cout << it->first << " | ";
+				int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+				int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+				int Width = ((it->second)->width * m_dImageScalor_x);
+				int Height = ((it->second)->height * m_dImageScalor_y);
+				if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+				{
+					selectedLink[it->first] = it->second;
+					setCursor(Qt::ClosedHandCursor);
+				}
 			}
 		}
 	}
@@ -568,35 +574,37 @@ void Frame::mouseReleaseEvent(QMouseEvent *event)
 
 	if (ifJumpEnbale())
 	{
-		if (!isPaintRect())
+		if (isPaintRect())
 		{
-			qDebug() << " not enable PaintRect";
-			return;
-		}
-		std::map<std::string, HyperLinkForFrame *> selectedLink;
-		std::map<std::string, HyperLinkForFrame *>::iterator it;
-		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-			//std::cout << it->first << " | ";
-			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-			int Width = ((it->second)->width * m_dImageScalor_x);
-			int Height = ((it->second)->height * m_dImageScalor_y);
-			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+			if (Qt::RightButton == event->button())
 			{
-				selectedLink[it->first] = it->second;
-				setCursor(Qt::OpenHandCursor);
-				framePause();
-				m_bIsStopped = true;
-				loaderThread.interrupt();
-				while (!loaderThread.isStoped())
-				{
-					//printf("!");
-					loaderThread.exit();
+				std::map<std::string, HyperLinkForFrame *> selectedLink;
+				std::map<std::string, HyperLinkForFrame *>::iterator it;
+				for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+					//std::cout << it->first << " | ";
+					int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+					int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+					int Width = ((it->second)->width * m_dImageScalor_x);
+					int Height = ((it->second)->height * m_dImageScalor_y);
+					if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+					{
+						selectedLink[it->first] = it->second;
+						setCursor(Qt::OpenHandCursor);
+						framePause();
+						m_bIsStopped = true;
+						loaderThread.interrupt();
+						while (!loaderThread.isStoped())
+						{
+							//printf("!");
+							loaderThread.exit();
+						}
+						emit requestJump((selectedLink.begin()->second)->targetFilename, (selectedLink.begin()->second)->targetFrame);
+						break;
+					}
 				}
-				emit requestJump((selectedLink.begin()->second)->targetFilename, (selectedLink.begin()->second)->targetFrame);
-				break;
 			}
 		}
+		
 	}
 
 	if (getEnableEditRect())
