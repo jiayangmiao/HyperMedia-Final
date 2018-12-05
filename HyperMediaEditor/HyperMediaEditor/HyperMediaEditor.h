@@ -173,9 +173,23 @@ public slots:
 			ui.leftWidget->setCurrentFrame(chosenStartFrame);
 		}
 		else {
+			if (chosenX != -1 || chosenY != -1) {
+				int oldStartFrame = chosenStartFrame;
+				chosenStartFrame = desiredStartFrame;
+
+				QRect rect(chosenX, chosenY, chosenWidth, chosenHeight);
+				if (!checkNewRect(rect)) {
+					chosenStartFrame = oldStartFrame;
+					ui.leftWidget->setCurrentFrame(oldStartFrame);
+					emit startFrameUpdated(oldStartFrame);
+					return;
+				}
+			}
+
 			originStartFrameIsChosen = true;
 			chosenStartFrame = desiredStartFrame;
 			enableOriginJumpToStartButton(true);
+
 			emit startFrameUpdated(chosenStartFrame);
 		}
 		ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
@@ -190,9 +204,24 @@ public slots:
 			ui.leftWidget->setCurrentFrame(chosenEndFrame);
 		}
 		else {
+			if (chosenX != -1 || chosenY != -1) {
+				int oldEndFrame = chosenEndFrame;
+				chosenEndFrame = desiredEndFrame;
+
+				QRect rect(chosenX, chosenY, chosenWidth, chosenHeight);
+				if (!checkNewRect(rect)) {
+					chosenEndFrame = oldEndFrame;
+					ui.leftWidget->setCurrentFrame(oldEndFrame);
+					emit endFrameUpdated(oldEndFrame);
+					return;
+				}
+			}
+
 			originEndFrameIsChosen = true;
 			chosenEndFrame = desiredEndFrame;
 			enableOriginJumpToEndButton(true);
+
+			// check the new frame
 			emit endFrameUpdated(chosenEndFrame);
 		}
 		ui.originSelectedEndTimeLabel->setText(frame2time(chosenEndFrame, ui.originSelectedEndTimeLabel->text()));
@@ -297,17 +326,36 @@ public slots:
 			std::string name = text.toStdString();
 			HyperMediaLink *chosenLink = tempLinkWithName(name);
 			if (chosenLink != NULL) { // Sometimes it fucks up so protecting
+				std::cout << "Selected link name: " << chosenLinkName << "\n";
+
 				ui.leftWidget->Stop();
-				ui.leftWidget->setCurrentFrame(chosenLink->startFrame);
 				ui.linkNameLineEdit->setText(text);
 				chosenLinkName = name;
-				std::cout << "Selected link name: " << chosenLinkName << "\n";
+
+				ui.leftWidget->setCurrentFrame(chosenLink->startFrame);
+				chosenStartFrame = chosenLink->startFrame;
+				chosenEndFrame = chosenLink->endFrame;
+				ui.originSelectedStartTimeLabel->setText(frame2time(chosenStartFrame, ui.originSelectedStartTimeLabel->text()));
+				ui.originSelectedEndTimeLabel->setText(frame2time(chosenEndFrame, ui.originSelectedEndTimeLabel->text()));
+
+				resetAreaButtonIsClicked();
+				emit startFrameUpdated(1);
+				emit endFrameUpdated(9000);
 			}
 		}
 	}
 
 	void selectAreaButtonTapped()
 	{
+		if (!originStartFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No Start frame was provided.");
+			return;
+		}
+		if (!originEndFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No End frame was provided.");
+			return;
+		}
+
 		if (ui.selectArea->text().contains("Off"))
 		{
 			ui.leftWidget->enableEditRect();
@@ -342,7 +390,7 @@ public slots:
 		}
 
 		// Check if has chosen xy width height
-		if (chosenX == -1 || chosenY == -1 || chosenWidth == -1 || chosenHeight == -1)
+		if (chosenX == -1 || chosenY == -1)
 		{
 			QMessageBox::warning(this, "Error", "Please select a rectangular area.");
 			return;
@@ -436,11 +484,11 @@ public slots:
 
 	void resetAreaButtonIsClicked()
 	{
-		ui.leftWidget->resetRectBeingEdited();
 		chosenX = -1;
 		chosenY = -1;
 		chosenWidth = -1;
 		chosenHeight = -1;
+		ui.leftWidget->resetRectBeingEdited();
 	}
 
 	void printTemporaryRect()

@@ -442,7 +442,7 @@ bool HyperMediaEditor::checkNewRect(const QRect &rect)
 				QRect intersecRect = rect.intersected(temp);
 				if (( intersecRect == rect) || ( intersecRect == temp))
 				{
-					QMessageBox::warning(this, "Error", "This rectangle intersects totally with other rectangles, please try again ");
+					QMessageBox::warning(this, "Error", "The currently chosen area and time period is covering or was covered completely by other areas of links. Please try again ");
 					return false;
 				}
 			}
