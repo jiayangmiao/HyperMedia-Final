@@ -71,6 +71,12 @@ void Frame::Init()
 
 void Frame::LoadVideo(int startFrame)
 {
+	if (m_sRootFolder.compare("") == 0)
+	{
+		QMessageBox::warning(this, "Error", "Please specify path to video");
+		return;
+	}
+
 	m_sVideoName_old = m_sVideoName;
 	if (m_bIsStopped == false)
 	{
@@ -337,20 +343,17 @@ void Frame::mouseMoveEvent(QMouseEvent * event)
 	std::map<std::string, HyperLinkForFrame *> selectedLink;
 	if (isPaintRect())
 	{
-		if(Qt::RightButton == event->button())
-		{
-			std::map<std::string, HyperLinkForFrame *>::iterator it;
-			for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
-				//std::cout << it->first << " | ";
-				int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
-				int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
-				int Width = ((it->second)->width * m_dImageScalor_x);
-				int Height = ((it->second)->height * m_dImageScalor_y);
-				if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
-				{
-					selectedLink[it->first] = it->second;
-					setCursor(Qt::OpenHandCursor);
-				}
+		std::map<std::string, HyperLinkForFrame *>::iterator it;
+		for (it = m_mCurrentLink.begin(); it != m_mCurrentLink.end(); ++it) {
+			//std::cout << it->first << " | ";
+			int X = m_iImageOffset_x + ((it->second)->X * m_dImageScalor_x);
+			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
+			int Width = ((it->second)->width * m_dImageScalor_x);
+			int Height = ((it->second)->height * m_dImageScalor_y);
+			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+			{
+				selectedLink[it->first] = it->second;
+				setCursor(Qt::OpenHandCursor);
 			}
 		}
 	}

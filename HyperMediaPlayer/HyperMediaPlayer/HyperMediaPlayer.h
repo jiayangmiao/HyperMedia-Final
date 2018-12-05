@@ -59,7 +59,7 @@ public slots:
 		for (it = selectedLink.begin(); it != selectedLink.end(); ++it) {
 			//std::cout << it->first << " | ";
 			QString linkString;
-			linkString = " Link Name: " + QString::fromStdString(it->first) + " Target Video Name: " + QString::fromStdString((it->second)->targetFilename) + " Target Frame: " + QString::number((it->second)->targetFrame, 10) + "|";
+			linkString = "Name: " + QString::fromStdString(it->first) + " Target: " + QString::fromStdString((it->second)->targetFilename) + "(" + frame2time((it->second)->targetFrame, "00:00:00") + ") |";
 			outputString += linkString;
 		}
 		emit linkOutputUpdated(outputString);
