@@ -370,6 +370,13 @@ public slots:
 
 	void selectAreaButtonTapped()
 	{
+		if (ui.selectArea->text().contains("On"))
+		{
+			ui.leftWidget->disableEditRect();
+			ui.selectArea->setText("Select Area Off");
+			return;
+		}
+
 		if (!originStartFrameIsChosen) {
 			QMessageBox::warning(this, "Error", "No Start frame was provided.");
 			return;
@@ -378,17 +385,16 @@ public slots:
 			QMessageBox::warning(this, "Error", "No End frame was provided.");
 			return;
 		}
-
 		if (ui.selectArea->text().contains("Off"))
 		{
 			ui.leftWidget->enableEditRect();
 			ui.selectArea->setText("Select Area On");
 		}
-		else
-		{
-			ui.leftWidget->disableEditRect();
-			ui.selectArea->setText("Select Area Off");
-		}
+		//else
+		//{
+		//	ui.leftWidget->disableEditRect();
+		//	ui.selectArea->setText("Select Area Off");
+		//}
 	}
 
 	void setLinkButtonTapped()
