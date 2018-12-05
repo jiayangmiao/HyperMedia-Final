@@ -87,7 +87,7 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(this, SIGNAL(successfullySetLink()), ui.leftWidget, SLOT(linkSet()));
 
 	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
-	connect(ui.resetAreaButton, SIGNAL(clicked()), ui.leftWidget, SLOT(resetRectBeingEdited()));
+	connect(ui.resetAreaButton, SIGNAL(clicked()), this, SLOT(resetAreaButtonIsClicked()));
 
 	connect(ui.leftWidget, SIGNAL(newRectDrawn(QRect)), this, SLOT(temporaryRectUpdated(QRect)));
 	connect(this, SIGNAL(temporaryRectUpdated()), this, SLOT(printTemporaryRect()));
@@ -347,4 +347,34 @@ QString HyperMediaEditor::frame2time(int iFrameNum, QString  string)
 
 	//qDebug() << string;
 	return string;
+}
+
+bool HyperMediaEditor::checkNewRect(const QRect &rect)
+{
+	std::list<HyperMediaLink *>::iterator it;
+	for (it = tempLinks.begin(); it != tempLinks.end(); ++it)
+	{
+		if ((chosenStartFrame > (*it)->endFrame) || (chosenEndFrame < (*it)->startFrame) )
+		{
+			;
+		}
+		else
+		{
+			QRect temp = QRect((*it)->X, (*it)->Y, (*it)->width, (*it)->height);
+			if (rect.intersects(temp))
+			{
+				QRect intersecRect = rect.intersected(temp);
+				if (( intersecRect == rect) || ( intersecRect == temp))
+				{
+					QMessageBox::warning(this, "Error", "This rectangle intersects totally with other rectangles, please try again ");
+					return false;
+				}
+			}
+			else
+			{
+				;
+			}
+		}
+	}
+	return true;
 }

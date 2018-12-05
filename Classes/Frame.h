@@ -169,11 +169,13 @@ public slots:
 		m_bEditStartPointSet = false;
 		m_bEditEndPointSet = false;
 		m_bRectSelected = false;
-		m_mRectBeingEdited.second.setWidth(0);
-		m_mRectBeingEdited.second.setHeight(0);
 		m_mRectBeingEdited.second.setX(0);
 		m_mRectBeingEdited.second.setY(0);
+		m_mRectBeingEdited.second.setWidth(0);
+		m_mRectBeingEdited.second.setHeight(0);
 		update();
+		QRect temp = m_mRectBeingEdited.second;
+		//qDebug() << temp.x() << ' ' << temp.y() << ' ' << temp.width() << ' ' << temp.height();
 	}
 
 	void rectChecked(bool isValid, QRect historyRect)
@@ -186,17 +188,14 @@ public slots:
 		{
 			if ((historyRect.x() == -1) || (historyRect.y() == -1))
 			{
-				m_mRectBeingEdited.second.setWidth(0);
-				m_mRectBeingEdited.second.setHeight(0);
-				m_mRectBeingEdited.second.setX(0);
-				m_mRectBeingEdited.second.setY(0);
+				resetRectBeingEdited();
 			}
 			else
 			{
-				m_mRectBeingEdited.second.setWidth(historyRect.width());
-				m_mRectBeingEdited.second.setHeight(historyRect.height());
 				m_mRectBeingEdited.second.setX(historyRect.x());
 				m_mRectBeingEdited.second.setY(historyRect.y());
+				m_mRectBeingEdited.second.setWidth(historyRect.width());
+				m_mRectBeingEdited.second.setHeight(historyRect.height());
 			}
 			update();
 		}

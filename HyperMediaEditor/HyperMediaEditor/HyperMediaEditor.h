@@ -84,6 +84,9 @@ private:
 	void saveTempLinksIntoFile();
 
 	void enableRectUI(bool);
+	
+	bool checkNewRect(const QRect &rect);
+
 
 signals:
 	void temporaryRectUpdated();
@@ -256,7 +259,7 @@ public slots:
 		std::cout << "Target: " << ui.rightWidget->m_sVideoName << "\n";
 
 		resetTargetTempVariables();
-		ui.rightWidget->setCurrentFrame(chosenTargetFrame);
+		//ui.rightWidget->setCurrentFrame(chosenTargetFrame);
 
 		enableTargetPlayerUI(true);
 		updateRectUI();
@@ -362,13 +365,35 @@ public slots:
 		//		emit temporaryRectUsable(false, oldRect)
 		// 通过！
 		//		赋值
-				chosenX = rect.x();
-				chosenY = rect.y();
-				chosenWidth = rect.width();
-				chosenHeight = rect.height();
+
 		//		创建一个新的newRect(chosenX, chosenY, chosenWidth, chosenHeight)
 		//		emit temporaryRectUsable(true, newRect)
-				printTemporaryRect();
+				//printTemporaryRect();
+
+		if (checkNewRect(rect))
+		{
+			chosenX = rect.x();
+			chosenY = rect.y();
+			chosenWidth = rect.width();
+			chosenHeight = rect.height();
+			emit temporaryRectUsable(true, rect);
+		}
+		else
+		{
+			QRect oldRect(chosenX, chosenY, chosenWidth, chosenHeight);
+			emit temporaryRectUsable(false, oldRect);
+		}
+
+	}
+
+
+	void resetAreaButtonIsClicked()
+	{
+		ui.leftWidget->resetRectBeingEdited();
+		chosenX = -1;
+		chosenY = -1;
+		chosenWidth = -1;
+		chosenHeight = -1;
 	}
 
 	void printTemporaryRect()
