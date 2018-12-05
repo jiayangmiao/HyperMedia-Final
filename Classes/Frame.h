@@ -164,8 +164,8 @@ public:
 public slots:
 	void resetRectBeingEdited()
 	{
-		m_mRectBeingEdited.first.first = 1; // reset startFrame
-		m_mRectBeingEdited.first.second = 9000;// reset endFrame
+		//m_mRectBeingEdited.first.first = 1; // reset startFrame
+		//m_mRectBeingEdited.first.second = 9000;// reset endFrame
 		m_bEditStartPointSet = false;
 		m_bEditEndPointSet = false;
 		m_bRectSelected = false;
@@ -215,6 +215,8 @@ public slots:
 	void linkSet()
 	{
 		resetRectBeingEdited();
+		m_mRectBeingEdited.first.first = 1; // reset startFrame
+		m_mRectBeingEdited.first.second = 9000;// reset endFrame
 	}
 	
 
@@ -476,6 +478,8 @@ public slots:
 		audioPlayer->stop();
 		_clear();
 		m_bIsStopped = true;
+		setCurrentLink();
+		update();
 	}
 
 	void calibrationTimer()
