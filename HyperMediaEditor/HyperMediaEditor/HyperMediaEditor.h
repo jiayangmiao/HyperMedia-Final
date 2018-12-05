@@ -243,7 +243,6 @@ public slots:
 		std::cout << "Origin: " << ui.leftWidget->m_sVideoName << "\n";
 
 		resetOriginTempVariables();
-		ui.leftWidget->setCurrentFrame(chosenStartFrame);
 
 		enableOriginPlayerUI(true);
 		enableLinkOperationUI(true);
@@ -260,7 +259,6 @@ public slots:
 		std::cout << "Target: " << ui.rightWidget->m_sVideoName << "\n";
 
 		resetTargetTempVariables();
-		//ui.rightWidget->setCurrentFrame(chosenTargetFrame);
 
 		enableTargetPlayerUI(true);
 		updateRectUI();

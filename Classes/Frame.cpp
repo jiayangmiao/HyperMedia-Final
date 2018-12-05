@@ -92,6 +92,7 @@ void Frame::LoadVideo(int startFrame)
 	}
 	else
 	{
+		m_iCurrentFrame = 1;
 		loadInitialFrame(m_iInitialLoadedFrameSize);
 	}
 	m_bVideoIsLoaded = true;
