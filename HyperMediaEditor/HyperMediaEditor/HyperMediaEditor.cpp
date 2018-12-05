@@ -81,7 +81,7 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(ui.originJumpToStartButton, SIGNAL(clicked()), this, SLOT(originJumpToStartTapped()));
 	connect(ui.originJumpToEndButton, SIGNAL(clicked()), this, SLOT(originJumpToEndTapped()));
 
-	connect(this, SIGNAL(temporaryRectUsable(bool, QRect)), this, SLOT(rectChecked(bool, QRect)));
+	connect(this, SIGNAL(temporaryRectUsable(bool, QRect)), ui.leftWidget, SLOT(rectChecked(bool, QRect)));
 	connect(this, SIGNAL(startFrameUpdated(int)), ui.leftWidget, SLOT(setStartFrame(int)));
 	connect(this, SIGNAL(endFrameUpdated(int)), ui.leftWidget, SLOT(setEndFrame(int)));
 	connect(this, SIGNAL(successfullySetLink()), ui.leftWidget, SLOT(linkSet()));

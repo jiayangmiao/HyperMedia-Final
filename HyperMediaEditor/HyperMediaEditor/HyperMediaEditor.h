@@ -368,6 +368,7 @@ public slots:
 				chosenHeight = rect.height();
 		//		创建一个新的newRect(chosenX, chosenY, chosenWidth, chosenHeight)
 		//		emit temporaryRectUsable(true, newRect)
+				printTemporaryRect();
 	}
 
 	void printTemporaryRect()
