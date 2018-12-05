@@ -6,9 +6,8 @@
 #include "../../Library/rapidxml/rapidxml_utils.hpp"
 #include <iostream>
 #include <stdio.h>
-#include <QFile>
-#include <QTextStream>
 #include <sstream>
+#include <QCloseEvent>
 
 HyperMediaEditor::HyperMediaEditor(QWidget *parent)
 	: QMainWindow(parent)
@@ -208,6 +207,18 @@ HyperMediaLink * HyperMediaEditor::tempLinkWithName(std::string name)
 void HyperMediaEditor::addLinkToTemp(HyperMediaLink *newLink)
 {
 	linkHasBeenEdited = true;
+	tempLinks.push_back(newLink);
+
+	ui.leftWidget->generateListAndMaps(tempLinks);
+	setupComboBoxFromTemp();
+
+	resetAllTempVariables();
+	resetLinkRelatedUI();
+
+	ui.leftWidget->setCurrentFrame(1);
+	ui.rightWidget->setCurrentFrame(1);
+
+	emit successfullySetLink();
 }
 
 void HyperMediaEditor::removeLinkFromTemp(std::string name)
@@ -442,4 +453,21 @@ bool HyperMediaEditor::checkNewRect(const QRect &rect)
 		}
 	}
 	return true;
+}
+
+void HyperMediaEditor::closeEvent(QCloseEvent *event)
+{
+	if (linkHasBeenEdited) 
+	{
+		QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Unsaved changes",
+			tr("You have changes that are not saved\nAre you sure you want to quit?"),
+			QMessageBox::No | QMessageBox::Yes,
+			QMessageBox::Yes);
+		if (resBtn != QMessageBox::Yes) {
+			event->ignore();
+		}
+		else {
+			event->accept();
+		}
+	}
 }

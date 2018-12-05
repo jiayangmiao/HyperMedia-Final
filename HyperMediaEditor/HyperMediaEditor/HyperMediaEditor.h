@@ -88,6 +88,7 @@ private:
 	
 	bool checkNewRect(const QRect &rect);
 
+	void closeEvent(QCloseEvent *e);
 
 signals:
 	void temporaryRectUpdated();
@@ -309,19 +310,6 @@ public slots:
 
 	void selectAreaButtonTapped()
 	{
-		if (!originStartFrameIsChosen) {
-			QMessageBox::warning(this, "Error", "No Start frame was provided.");
-			return;
-		}
-		if (!originEndFrameIsChosen) {
-			QMessageBox::warning(this, "Error", "No End frame was provided.");
-			return;
-		}
-		if (!targetFrameIsChosen) {
-			QMessageBox::warning(this, "Error", "No Target frame was provided.");
-			return;
-		}
-
 		if (ui.selectArea->text().contains("Off"))
 		{
 			ui.leftWidget->enableEditRect();
@@ -342,9 +330,16 @@ public slots:
 			return;
 		}
 
-		if (!originStartFrameIsChosen || !originEndFrameIsChosen || !targetFrameIsChosen) 
-		{
-			QMessageBox::warning(this, "Error", "Please set start frame, end frame and target frame.");
+		if (!originStartFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No Start frame was provided.");
+			return;
+		}
+		if (!originEndFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No End frame was provided.");
+			return;
+		}
+		if (!targetFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No Target frame was provided.");
 			return;
 		}
 
@@ -362,17 +357,25 @@ public slots:
 			response = QMessageBox::question(this, "Overwrite", "Found a link with existing name. Overwrite?",
 				QMessageBox::Yes | QMessageBox::No);
 			if (response == QMessageBox::Yes) {
-				// OVERWRITE
-				qDebug() << "Please overwrite";
+				qDebug() << "Overwrite";
+				
+				// Remove the old link with this name
+				removeLinkFromTemp(ui.linkNameLineEdit->text().toStdString());
 
-				// TODO: emit successfullySetLink();
+				HyperMediaLink *newLink = new HyperMediaLink(ui.linkNameLineEdit->text().toStdString(), chosenStartFrame, chosenEndFrame,
+					ui.rightWidget->m_sVideoName, chosenTargetFrame, chosenX, chosenY, chosenHeight, chosenWidth);
+				addLinkToTemp(newLink);
 
-				resetAllTempVariables();
 			}
 			else {
 				qDebug() << "Don't overwrite";
 				return;
 			}
+		}
+		else {
+			HyperMediaLink *newLink = new HyperMediaLink(ui.linkNameLineEdit->text().toStdString(), chosenStartFrame, chosenEndFrame,
+				ui.rightWidget->m_sVideoName, chosenTargetFrame, chosenX, chosenY, chosenHeight, chosenWidth);
+			addLinkToTemp(newLink);
 		}
 
 	}
@@ -399,6 +402,7 @@ public slots:
 	void saveButtonTapped()
 	{
 		saveTempLinksIntoFile();
+		linkHasBeenEdited = false;
 	}
 
 	void temporaryRectUpdated(QRect  rect)
