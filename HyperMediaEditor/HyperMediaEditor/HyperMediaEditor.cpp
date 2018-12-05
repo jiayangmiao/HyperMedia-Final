@@ -177,7 +177,9 @@ void HyperMediaEditor::setupComboBoxFromTemp()
 		QModelIndex firstIndex = model->index(0, ui.selectLinkComboBox->modelColumn(),
 			ui.selectLinkComboBox->rootModelIndex());
 		QStandardItem* firstItem = model->itemFromIndex(firstIndex);
-		firstItem->setSelectable(false);
+		//firstItem->setSelectable(false);
+		firstItem->setSelectable(true);
+
 	}
 	else {
 		ui.selectLinkComboBox->addItem("- Select Link -");
@@ -190,7 +192,9 @@ void HyperMediaEditor::setupComboBoxFromTemp()
 		QModelIndex firstIndex = model->index(0, ui.selectLinkComboBox->modelColumn(),
 			ui.selectLinkComboBox->rootModelIndex());
 		QStandardItem* firstItem = model->itemFromIndex(firstIndex);
-		firstItem->setSelectable(false);
+		//firstItem->setSelectable(false);
+		firstItem->setSelectable(true);
+
 	}
 }
 

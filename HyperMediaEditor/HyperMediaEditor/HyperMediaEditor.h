@@ -320,6 +320,15 @@ public slots:
 	void chosenLinkChanged(const QString &text)
 	{
 		if ((text.compare("- No Links -") == 0) || (text.compare("- Select Link -") == 0)) {
+			// If user tapped the first link, reset shit
+			ui.linkNameLineEdit->setText("");
+			
+			resetOriginTempVariables();
+
+			resetAreaButtonIsClicked();
+			emit startFrameUpdated(1);
+			emit endFrameUpdated(9000);
+
 			return;
 		}
 		else {
@@ -347,11 +356,16 @@ public slots:
 
 	void chosenLinkTapped(int index)
 	{
-		int currentlySelectedIndex = ui.selectLinkComboBox->currentIndex();
-		std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
-		std::advance(it, index-1);
-		std::string chosenLinkName = (*it)->linkName;
-		chosenLinkChanged(QString::fromStdString(chosenLinkName));
+		if (index == 0) {
+			chosenLinkChanged("- No Links -");
+		}
+		else {
+			int currentlySelectedIndex = ui.selectLinkComboBox->currentIndex();
+			std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
+			std::advance(it, index - 1);
+			std::string chosenLinkName = (*it)->linkName;
+			chosenLinkChanged(QString::fromStdString(chosenLinkName));
+		}
 	}
 
 	void selectAreaButtonTapped()
