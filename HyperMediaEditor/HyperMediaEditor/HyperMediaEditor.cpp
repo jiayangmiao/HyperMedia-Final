@@ -87,6 +87,7 @@ void HyperMediaEditor::initialOriginFrame()
 	connect(this, SIGNAL(successfullySetLink()), ui.leftWidget, SLOT(linkSet()));
 
 	connect(ui.selectArea, SIGNAL(clicked()), this, SLOT(selectAreaButtonTapped()));
+	connect(ui.resetAreaButton, SIGNAL(clicked()), ui.leftWidget, SLOT(resetRectBeingEdited()));
 
 	connect(ui.leftWidget, SIGNAL(newRectDrawn(QRect)), this, SLOT(temporaryRectUpdated(QRect)));
 	connect(this, SIGNAL(temporaryRectUpdated()), this, SLOT(printTemporaryRect()));
@@ -155,6 +156,7 @@ void HyperMediaEditor::enableRectUI(bool enable)
 {
 	// Add code to enable/disable rect selection UI here
 	ui.selectArea->setEnabled(enable);
+	ui.resetAreaButton->setEnabled(enable);
 }
 
 void HyperMediaEditor::setupComboBoxFromTemp()
