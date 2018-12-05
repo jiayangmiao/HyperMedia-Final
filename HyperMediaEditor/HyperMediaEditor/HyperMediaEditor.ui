@@ -258,7 +258,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>Origin Video</string>
+     <string>Target Video</string>
     </property>
     <widget class="QSlider" name="rightSlider">
      <property name="geometry">
