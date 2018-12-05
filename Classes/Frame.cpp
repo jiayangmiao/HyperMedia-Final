@@ -350,7 +350,9 @@ void Frame::mouseMoveEvent(QMouseEvent * event)
 			int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
 			int Width = ((it->second)->width * m_dImageScalor_x);
 			int Height = ((it->second)->height * m_dImageScalor_y);
-			if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+
+			QRect currentLinkRect(X, Y, Width, Height);
+			if (currentLinkRect.contains(curvePos.x(),curvePos.y()))
 			{
 				selectedLink[it->first] = it->second;
 				setCursor(Qt::OpenHandCursor);
@@ -465,7 +467,8 @@ void Frame::mousePressEvent(QMouseEvent *event)
 				int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
 				int Width = ((it->second)->width * m_dImageScalor_x);
 				int Height = ((it->second)->height * m_dImageScalor_y);
-				if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+				QRect currentLinkRect(X, Y, Width, Height);
+				if (currentLinkRect.contains(curvePos.x(), curvePos.y()))
 				{
 					selectedLink[it->first] = it->second;
 					setCursor(Qt::ClosedHandCursor);
@@ -590,7 +593,8 @@ void Frame::mouseReleaseEvent(QMouseEvent *event)
 					int Y = m_iImageOffset_y + ((it->second)->Y * m_dImageScalor_y);
 					int Width = ((it->second)->width * m_dImageScalor_x);
 					int Height = ((it->second)->height * m_dImageScalor_y);
-					if (((curvePos.x() - X) <= Width) && ((curvePos.y() - Y) <= Height) && ((curvePos.x() - X) >= 0) && ((curvePos.y() - Y) >= 0))
+					QRect currentLinkRect(X, Y, Width, Height);
+					if (currentLinkRect.contains(curvePos.x(), curvePos.y()))
 					{
 						selectedLink[it->first] = it->second;
 						setCursor(Qt::OpenHandCursor);
