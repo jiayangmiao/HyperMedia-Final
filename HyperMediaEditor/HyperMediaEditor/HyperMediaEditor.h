@@ -210,7 +210,6 @@ public slots:
 	void originJumpToEndTapped()
 	{
 		ui.leftWidget->setCurrentFrame(chosenEndFrame);
-
 	}
 
 	void targetJumpToTargetTapped()
