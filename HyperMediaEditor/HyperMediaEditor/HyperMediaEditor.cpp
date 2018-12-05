@@ -35,7 +35,8 @@ HyperMediaEditor::HyperMediaEditor(QWidget *parent)
 	ui.rightSlider->setStyle(new MyStyle(ui.rightSlider->style()));
 	ui.targetVideoLengthLabel->setText(frame2time(m_iFrameNum, ui.targetVideoLengthLabel->text()));
 
-	connect(ui.selectLinkComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(chosenLinkChanged(QString)));
+	//connect(ui.selectLinkComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(chosenLinkChanged(QString)));
+	connect(ui.selectLinkComboBox, SIGNAL(activated(int)), this, SLOT(chosenLinkTapped(int)));
 
 	connect(ui.setLinkButton, SIGNAL(clicked()), this, SLOT(setLinkButtonTapped()));
 	connect(ui.removeLinkButton, SIGNAL(clicked()), this, SLOT(removeLinkButtonTapped()));

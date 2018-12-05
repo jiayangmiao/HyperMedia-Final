@@ -345,6 +345,15 @@ public slots:
 		}
 	}
 
+	void chosenLinkTapped(int index)
+	{
+		int currentlySelectedIndex = ui.selectLinkComboBox->currentIndex();
+		std::list<HyperMediaLink *>::iterator it = tempLinks.begin();
+		std::advance(it, index-1);
+		std::string chosenLinkName = (*it)->linkName;
+		chosenLinkChanged(QString::fromStdString(chosenLinkName));
+	}
+
 	void selectAreaButtonTapped()
 	{
 		if (!originStartFrameIsChosen) {
