@@ -445,7 +445,7 @@ bool HyperMediaEditor::checkNewRect(const QRect &rect)
 			if (rect.intersects(temp))
 			{
 				QRect intersecRect = rect.intersected(temp);
-				if (( intersecRect == rect) || ( intersecRect == temp))
+				if (( intersecRect == rect.normalized()) || ( intersecRect == temp.normalized()))
 				{
 					QMessageBox::warning(this, "Error", "The currently chosen area and time period is covering or was covered completely by other areas of links. Please try again ");
 					return false;
