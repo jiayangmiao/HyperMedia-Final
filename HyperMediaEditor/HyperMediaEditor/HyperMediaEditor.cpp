@@ -265,23 +265,23 @@ void HyperMediaEditor::resetTargetTempVariables()
 void HyperMediaEditor::saveTempLinksIntoFile()
 {
 	std::cout << "Save requested" << "\n";
-	std::string filePath = ui.leftWidget->m_sRootFolder.append("/").append(ui.leftWidget->m_sVideoName).append(".xml");
+	std::string filePath = ui.leftWidget->m_sRootFolder;
+	filePath +=  "/" + ui.leftWidget->m_sVideoName + ".xml";
 	QString qfilePath = QString::fromStdString(filePath);
 	qfilePath.replace("/", "//");
 	filePath = qfilePath.toStdString();
 
-	QFile file(qfilePath);
-	if (file.open(QIODevice::ReadWrite)) {
-		file.resize(0);
-		QTextStream stream(&file);
-		stream.setCodec("UTF-8");
+	FILE * of;
+	of = fopen(filePath.c_str(), "w");
+
+	if (of != NULL) {
 
 		rapidxml::xml_document<> outputDoc;
 
 		rapidxml::xml_node<>* filenameNode = outputDoc.allocate_node(rapidxml::node_element, "filename");
 		filenameNode->value(ui.leftWidget->m_sVideoName.c_str());
 		outputDoc.append_node(filenameNode);
-	
+
 		rapidxml::xml_node<>* linksNode = outputDoc.allocate_node(rapidxml::node_element, "links");
 
 		std::list<HyperMediaLink *>::iterator it;
@@ -289,24 +289,24 @@ void HyperMediaEditor::saveTempLinksIntoFile()
 			if ((*it)->linkName.compare("temporary_link") != 0) { // Skipping the temp link
 
 				rapidxml::xml_node<>* thisLinkNode = outputDoc.allocate_node(rapidxml::node_element, "link");
-			
+
 				rapidxml::xml_node<>* linkNameNode = outputDoc.allocate_node(rapidxml::node_element, "name");
 				linkNameNode->value(outputDoc.allocate_string((*it)->linkName.c_str()));
 				thisLinkNode->append_node(linkNameNode);
-			
+
 				int temp = (*it)->startFrame;
 				char buffer[20];
 				itoa(temp, buffer, 10);
 				rapidxml::xml_node<>* linkStartFrameNode = outputDoc.allocate_node(rapidxml::node_element, "startFrame");
 				linkStartFrameNode->value(outputDoc.allocate_string(buffer));
 				thisLinkNode->append_node(linkStartFrameNode);
-			
+
 				temp = (*it)->endFrame;
 				itoa(temp, buffer, 10);
 				rapidxml::xml_node<>* linkEndFrameNode = outputDoc.allocate_node(rapidxml::node_element, "endFrame");
 				linkEndFrameNode->value(outputDoc.allocate_string(buffer));
 				thisLinkNode->append_node(linkEndFrameNode);
-			
+
 				rapidxml::xml_node<>* linkTargetFilenameNode = outputDoc.allocate_node(rapidxml::node_element, "targetFilename");
 				linkTargetFilenameNode->value(outputDoc.allocate_string((*it)->targetFilename.c_str()));
 				thisLinkNode->append_node(linkTargetFilenameNode);
@@ -316,7 +316,7 @@ void HyperMediaEditor::saveTempLinksIntoFile()
 				rapidxml::xml_node<>* linkTargetFrameNode = outputDoc.allocate_node(rapidxml::node_element, "targetFrame");
 				linkTargetFrameNode->value(outputDoc.allocate_string(buffer));
 				thisLinkNode->append_node(linkTargetFrameNode);
-			
+
 				temp = (*it)->X;
 				itoa(temp, buffer, 10);
 				rapidxml::xml_node<>* linkXNode = outputDoc.allocate_node(rapidxml::node_element, "originX");
@@ -345,17 +345,23 @@ void HyperMediaEditor::saveTempLinksIntoFile()
 			}
 		}
 		outputDoc.append_node(linksNode);
-		std::stringstream ss;
-		ss << outputDoc;
-		std::cout << outputDoc;
-		std::string result_xml = ss.str();
-		//std::cout << result_xml << "\n";
-		stream << QString::fromStdString(result_xml);
 
-	//print(stream, doc, 0);
+		std::stringstream ss;
+		ss.str("");
+		ss << outputDoc;
+		std::string result_xml = ss.str();
+		std::cout << result_xml << "\n";
+		fwrite(result_xml.c_str(), sizeof(char), result_xml.size(), of);
+		fflush(of);
+		fclose(of);
+		outputDoc.clear();
+
+		ui.leftWidget->loadMetaData();
 	}
-	//doc.clear();
-	//of.close();
+	else {
+		// CANNOT open file
+		printf("err %d \n", errno);
+	}
 }
 
 HyperMediaEditor::~HyperMediaEditor()
