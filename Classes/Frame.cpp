@@ -114,11 +114,11 @@ void Frame::reloadVideo()
 
 Frame::~Frame()
 {
-	free(pRData);
-	free(pGData);
-	free(pBData);
-	free(pFrame);
-	freeMemory();
+	//free(pRData);
+	//free(pGData);
+	//free(pBData);
+	//free(pFrame);
+	//freeMemory();
 	freeCacheSystemMemory();
 	freeLinkSystemMemory();
 	delete audioPlayer;
