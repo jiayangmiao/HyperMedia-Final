@@ -143,7 +143,20 @@ public:
 		}
 	}
 
-	std::pair<int, QRect> m_mRectBeingEdited;
+	bool currentFrameIsInRange(std::pair<int, int> frameRange, int iCurrentFrame)
+	{
+		//qDebug() << iCurrentFrame << ' ' << frameRange.first << ' ' << frameRange.second;
+		if ((iCurrentFrame >= frameRange.first) && (iCurrentFrame <= frameRange.second))
+		{	
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	std::pair<std::pair<int,int>, QRect> m_mRectBeingEdited; // ((startFrame, endFrame), Rect)
 	bool m_bEditStartPointSet = false;
 	bool m_bEditEndPointSet = false;
 	bool m_bRectSelected = false;
@@ -151,16 +164,59 @@ public:
 public slots:
 	void resetRectBeingEdited()
 	{
-		m_mRectBeingEdited.first = -1;
+		m_mRectBeingEdited.first.first = 1; // reset startFrame
+		m_mRectBeingEdited.first.second = 9000;// reset endFrame
 		m_bEditStartPointSet = false;
 		m_bEditEndPointSet = false;
 		m_bRectSelected = false;
-		m_mRectBeingEdited.second.setWidth(0);
-		m_mRectBeingEdited.second.setHeight(0);
 		m_mRectBeingEdited.second.setX(0);
 		m_mRectBeingEdited.second.setY(0);
+		m_mRectBeingEdited.second.setWidth(0);
+		m_mRectBeingEdited.second.setHeight(0);
 		update();
+		QRect temp = m_mRectBeingEdited.second;
+		//qDebug() << temp.x() << ' ' << temp.y() << ' ' << temp.width() << ' ' << temp.height();
 	}
+
+	void rectChecked(bool isValid, QRect historyRect)
+	{
+		if (isValid)
+		{
+			return;
+		}
+		else
+		{
+			if ((historyRect.x() == -1) || (historyRect.y() == -1))
+			{
+				resetRectBeingEdited();
+			}
+			else
+			{
+				m_mRectBeingEdited.second.setX(historyRect.x());
+				m_mRectBeingEdited.second.setY(historyRect.y());
+				m_mRectBeingEdited.second.setWidth(historyRect.width());
+				m_mRectBeingEdited.second.setHeight(historyRect.height());
+			}
+			update();
+		}
+	}
+
+	void setStartFrame(int iStartFrame)
+	{
+		m_mRectBeingEdited.first.first = iStartFrame;
+	}
+
+
+	void setEndFrame(int iEndFrame )
+	{
+		m_mRectBeingEdited.first.second = iEndFrame;
+	}
+
+	void linkSet()
+	{
+		resetRectBeingEdited();
+	}
+	
 
 signals:
 	void newRectDrawn(QRect);
