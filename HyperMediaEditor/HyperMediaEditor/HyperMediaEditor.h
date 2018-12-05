@@ -77,6 +77,7 @@ private:
 	void resetAllTempVariables();
 	void resetOriginTempVariables();
 	void resetTargetTempVariables();
+	void resetLinkRelatedUI();
 
 	void addLinkToTemp(HyperMediaLink *newLink);
 	void removeLinkFromTemp(std::string linkName);
@@ -308,12 +309,19 @@ public slots:
 
 	void selectAreaButtonTapped()
 	{
-		
-		/*
-		if !originStartFrameIsChosen warning
-		if !originEndFrameIsChosen warning
-		if !targetFrameIsChosen warning
-		*/
+		if (!originStartFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No Start frame was provided.");
+			return;
+		}
+		if (!originEndFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No End frame was provided.");
+			return;
+		}
+		if (!targetFrameIsChosen) {
+			QMessageBox::warning(this, "Error", "No Target frame was provided.");
+			return;
+		}
+
 		if (ui.selectArea->text().contains("Off"))
 		{
 			ui.leftWidget->enableEditRect();
@@ -328,7 +336,45 @@ public slots:
 
 	void setLinkButtonTapped()
 	{
-		// TODO: emit successfullySetLink();
+		std::string desiredLinkName = ui.linkNameLineEdit->text().toStdString();
+		if (desiredLinkName.size() == 0) {
+			QMessageBox::warning(this, "Error", "No link name provided. Please pick from the menu on the left or type in manually.");
+			return;
+		}
+
+		if (!originStartFrameIsChosen || !originEndFrameIsChosen || !targetFrameIsChosen) 
+		{
+			QMessageBox::warning(this, "Error", "Please set start frame, end frame and target frame.");
+			return;
+		}
+
+		// Check if has chosen xy width height
+		if (chosenX == -1 || chosenY == -1 || chosenWidth == -1 || chosenHeight == -1)
+		{
+			QMessageBox::warning(this, "Error", "Please select a rectangular area.");
+			return;
+		}
+		
+		// If control reaches here there is a rect, selectAreaButtonTapped guarantees that frames are set
+		if (tempLinkWithName(ui.linkNameLineEdit->text().toStdString()) != NULL) {
+			// Existed, overwrite?
+			QMessageBox::StandardButton response;
+			response = QMessageBox::question(this, "Overwrite", "Found a link with existing name. Overwrite?",
+				QMessageBox::Yes | QMessageBox::No);
+			if (response == QMessageBox::Yes) {
+				// OVERWRITE
+				qDebug() << "Please overwrite";
+
+				// TODO: emit successfullySetLink();
+
+				resetAllTempVariables();
+			}
+			else {
+				qDebug() << "Don't overwrite";
+				return;
+			}
+		}
+
 	}
 
 	void removeLinkButtonTapped()
@@ -345,6 +391,8 @@ public slots:
 			setupComboBoxFromTemp();
 
 			resetAllTempVariables();
+			resetLinkRelatedUI();
+			ui.leftWidget->setCurrentFrame(1);
 		}
 	}
 
@@ -367,7 +415,6 @@ public slots:
 
 		//		创建一个新的newRect(chosenX, chosenY, chosenWidth, chosenHeight)
 		//		emit temporaryRectUsable(true, newRect)
-				//printTemporaryRect();
 
 		if (checkNewRect(rect))
 		{
@@ -382,7 +429,6 @@ public slots:
 			QRect oldRect(chosenX, chosenY, chosenWidth, chosenHeight);
 			emit temporaryRectUsable(false, oldRect);
 		}
-
 	}
 
 

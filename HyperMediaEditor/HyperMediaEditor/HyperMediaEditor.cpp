@@ -221,7 +221,9 @@ void HyperMediaEditor::removeLinkFromTemp(std::string name)
 	{
 		if ((*it)->linkName.compare(name) == 0) {
 			std::cout << "Erasing link with " << (*it)->linkName << "\n";
+			HyperMediaLink *toDelete = *it;
 			it = tempLinks.erase(it);
+			delete toDelete;
 		}
 		else
 		{
@@ -236,6 +238,13 @@ void HyperMediaEditor::resetAllTempVariables()
 	chosenLinkName = "";
 	resetOriginTempVariables();
 	resetTargetTempVariables();
+}
+
+void HyperMediaEditor::resetLinkRelatedUI()
+{
+	ui.leftWidget->setCurrentLink();
+	ui.linkNameLineEdit->setText("");
+	ui.selectLinkComboBox->setCurrentIndex(0);
 }
 
 void HyperMediaEditor::resetOriginTempVariables()
