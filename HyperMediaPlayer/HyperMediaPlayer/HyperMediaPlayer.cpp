@@ -58,7 +58,7 @@ void HyperMediaPlayer::initialFrame()
 	connect(ui.lineEdit, SIGNAL(textChanged(QString)), ui.widget, SLOT(setRootFolder(QString)));
 	connect(ui.pushButton_4, SIGNAL(clicked()), ui.widget, SLOT(LoadVideo()));
 
-	ui.widget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 800);
+	ui.widget->setBasic(m_iFrameNum, m_iWidth, m_iHeight, m_iFps, 300);
 	ui.widget->Init();
 	ui.widget->enableJump();
 	ui.widget->disableEditRect();
